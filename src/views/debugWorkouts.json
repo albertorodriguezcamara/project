@@ -1,0 +1,2 @@
+// Este archivo se usará para depuración en el navegador
+// Abre la consola y ejecuta: console.log(JSON.stringify($pinia.state.value.workoutLogs.workouts, null, 2)) para ver la estructura real de los workouts

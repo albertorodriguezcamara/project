@@ -1,0 +1,152 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+    @apply antialiased;
+  }
+
+  body {
+    @apply bg-gray-50 text-gray-900 min-h-screen;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  button, a {
+    @apply min-h-[44px] min-w-[44px];
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply px-4 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 
+           transition-all shadow-sm hover:shadow-md active:scale-95 
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-sm 
+           disabled:active:scale-100 w-full md:w-auto text-center justify-center
+           flex items-center gap-2 font-medium;
+  }
+
+  .btn-secondary {
+    @apply px-4 py-3 bg-white text-gray-700 rounded-xl border border-gray-200 
+           hover:border-gray-300 hover:bg-gray-50 transition-all shadow-sm 
+           hover:shadow-md active:scale-95 disabled:opacity-50 
+           disabled:cursor-not-allowed disabled:hover:shadow-sm 
+           disabled:active:scale-100 w-full md:w-auto text-center justify-center
+           flex items-center gap-2 font-medium;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-3 bg-white border border-gray-200 rounded-xl 
+           focus:outline-none focus:ring-2 focus:ring-emerald-500 
+           focus:border-transparent transition-all placeholder:text-gray-400
+           text-base shadow-sm;
+  }
+
+  .card {
+    @apply bg-white rounded-xl shadow-sm border border-gray-100/50 p-4 md:p-6 
+           transition-all hover:shadow-md hover:border-emerald-100;
+  }
+
+  .mobile-container {
+    @apply px-4 md:px-6 max-w-7xl mx-auto w-full;
+  }
+
+  .bottom-sheet {
+    @apply fixed inset-x-0 bottom-0 bg-white rounded-t-2xl shadow-lg 
+           transform transition-transform duration-300 ease-out 
+           pb-safe-bottom z-50;
+  }
+
+  .bottom-sheet-handle {
+    @apply w-12 h-1 bg-gray-300 rounded-full mx-auto my-3;
+  }
+
+  .mobile-nav {
+    @apply fixed bottom-0 inset-x-0 bg-white border-t border-gray-200 
+           pb-safe-bottom z-50 shadow-lg;
+  }
+
+  .mobile-nav-item {
+    @apply flex flex-col items-center justify-center py-2 px-4 text-xs 
+           font-medium text-gray-600 relative;
+  }
+
+  .mobile-nav-item.active {
+    @apply text-emerald-600;
+  }
+
+  .mobile-nav-item.active::after {
+    content: '';
+    @apply absolute -top-2 left-1/2 w-1 h-1 bg-emerald-600 rounded-full 
+           transform -translate-x-1/2;
+  }
+}
+
+/* Mobile-optimized scrollbar */
+@media (max-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+}
+
+/* Desktop scrollbar */
+@media (min-width: 769px) {
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100 rounded-full;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 rounded-full hover:bg-gray-400 transition-colors;
+}
+
+/* Transitions */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.15s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.slide-enter-active,
+.slide-leave-active {
+  transition: transform 0.3s ease-out;
+}
+
+.slide-enter-from {
+  transform: translateX(-100%);
+}
+
+.slide-leave-to {
+  transform: translateX(100%);
+}
+
+/* Loading skeleton */
+.skeleton {
+  @apply animate-pulse bg-gray-200 rounded;
+}
+
+/* Toast customization */
+:root {
+  --toastify-color-success: theme('colors.emerald.600');
+  --toastify-color-error: theme('colors.red.600');
+  --toastify-color-warning: theme('colors.amber.500');
+  --toastify-color-info: theme('colors.blue.600');
+}
+
+/* Safe area insets support */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .has-safe-area {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}

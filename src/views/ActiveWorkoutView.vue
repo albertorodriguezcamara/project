@@ -77,115 +77,241 @@
         <!-- Exercise List -->
         <div class="lg:col-span-8 space-y-6">
           <div
-            v-for="(ejercicio, index) in localExercises"
-            :key="ejercicio.ejercicio_id"
-            class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden"
+            v-for="(ejercicio, index) in groupedExercises"
+            :key="ejercicio.ejercicio_id || ejercicio.groupId"
+            class="bg-white rounded-xl shadow-sm overflow-hidden"
+            :class="[
+              ejercicio.isSuperset ? 'border-2 border-red-300' : 'border border-gray-200',
+              ejercicio.isSuperset ? 'relative' : ''
+            ]"
           >
-            <!-- Exercise Header -->
-            <div class="flex flex-col md:flex-row md:items-center gap-4 p-4 bg-gray-50 border-b border-gray-200">
-              <!-- Exercise GIF -->
-              <div class="w-28 h-20 flex-shrink-0 flex items-center justify-center rounded-lg overflow-hidden bg-gray-100">
-                <template v-if="ejercicio.exercise?.gif_url_supabase">
-                  <img :src="ejercicio.exercise.gif_url_supabase" :alt="ejercicio.exercise?.name_es || 'GIF ejercicio'" class="object-cover w-full h-full" />
-                </template>
-                <div v-else class="flex flex-col items-center justify-center h-full w-full">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" class="text-gray-400 mb-1"><circle cx="16" cy="16" r="14"/><path d="M8 16h8l4 4"/></svg>
-                  <span class="text-gray-400 text-xs">Sin imagen</span>
+            <div v-if="ejercicio.isSuperset" class="absolute top-0 right-0 bg-red-500 text-white px-2 py-1 text-xs font-bold rounded-bl">
+              SUPERSERIE
+            </div>
+            <!-- Exercise Header - Clickable to expand/collapse -->
+            <div 
+              @click="toggleExerciseExpanded(ejercicio.ejercicio_id || ejercicio.groupId)"
+              class="flex flex-col md:flex-row md:items-center gap-4 p-4 bg-gray-50 border-b border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
+            >
+              <!-- First Exercise -->
+              <div class="flex flex-1 flex-col md:flex-row md:items-center gap-4">
+                <!-- Exercise GIF -->
+                <div class="w-28 h-20 flex-shrink-0 flex items-center justify-center rounded-lg overflow-hidden bg-gray-100">
+                  <template v-if="ejercicio.exercise?.gif_url_supabase">
+                    <img :src="ejercicio.exercise.gif_url_supabase" :alt="ejercicio.exercise?.name_es || 'GIF ejercicio'" class="object-cover w-full h-full" />
+                  </template>
+                  <div v-else class="flex flex-col items-center justify-center h-full w-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" class="text-gray-400 mb-1"><circle cx="16" cy="16" r="14"/><path d="M8 16h8l4 4"/></svg>
+                    <span class="text-gray-400 text-xs">Sin imagen</span>
+                  </div>
+                </div>
+                <!-- Exercise Info -->
+                <div class="flex-1">
+                  <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-bold text-gray-900">
+                      {{ ejercicio.exercise?.name_es || ejercicio.name_es }}
+                    </h3>
+                    <div class="ml-2 p-1 rounded-full hover:bg-gray-200" @click.stop>
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 transform transition-transform" :class="{'rotate-180': isExerciseExpanded(ejercicio.ejercicio_id || ejercicio.groupId)}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="flex flex-wrap gap-2 text-sm text-gray-700 mb-1">
+                    <span v-if="ejercicio.exercise?.bodyPart_es" class="bg-blue-50 text-blue-800 px-2 py-1 rounded">{{ ejercicio.exercise.bodyPart_es }}</span>
+                    <span v-if="ejercicio.exercise?.equipment_es" class="bg-purple-50 text-purple-800 px-2 py-1 rounded">{{ ejercicio.exercise.equipment_es }}</span>
+                    <span v-if="isSupersetExercise(ejercicio)" class="bg-red-50 text-red-800 px-2 py-1 rounded font-semibold">Superserie</span>
+                  </div>
+                  <p class="text-sm text-gray-500 mb-1">
+                    {{ ejercicio.sets.length }} series
+                  </p>
                 </div>
               </div>
-              <!-- Exercise Info -->
-              <div class="flex-1">
-                <h3 class="text-lg font-bold text-gray-900">
-                  {{ ejercicio.exercise?.name_es || ejercicio.name_es }}
-                </h3>
-                <div class="flex flex-wrap gap-2 text-sm text-gray-700 mb-1">
-                  <span v-if="ejercicio.exercise?.bodyPart_es" class="bg-blue-50 text-blue-800 px-2 py-1 rounded">{{ ejercicio.exercise.bodyPart_es }}</span>
-                  <span v-if="ejercicio.exercise?.target_es" class="bg-green-50 text-green-800 px-2 py-1 rounded">Principal: {{ ejercicio.exercise.target_es }}</span>
-                  <span v-if="ejercicio.exercise?.secondaryMuscles_es" class="bg-yellow-50 text-yellow-800 px-2 py-1 rounded">Secundarios: {{ ejercicio.exercise.secondaryMuscles_es }}</span>
-                  <span v-if="ejercicio.exercise?.equipment_es" class="bg-purple-50 text-purple-800 px-2 py-1 rounded">Equipo: {{ ejercicio.exercise.equipment_es }}</span>
+              
+              <!-- Second Exercise (if superset) -->
+              <div v-if="ejercicio.isSuperset && ejercicio.pairedExercise" class="flex flex-1 flex-col md:flex-row md:items-center gap-4 mt-4 md:mt-0 md:border-l md:pl-4 border-gray-200">
+                <!-- Exercise GIF -->
+                <div class="w-28 h-20 flex-shrink-0 flex items-center justify-center rounded-lg overflow-hidden bg-gray-100">
+                  <template v-if="ejercicio.pairedExercise.exercise?.gif_url_supabase">
+                    <img :src="ejercicio.pairedExercise.exercise.gif_url_supabase" :alt="ejercicio.pairedExercise.exercise?.name_es || 'GIF ejercicio'" class="object-cover w-full h-full" />
+                  </template>
+                  <div v-else class="flex flex-col items-center justify-center h-full w-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" class="text-gray-400 mb-1"><circle cx="16" cy="16" r="14"/><path d="M8 16h8l4 4"/></svg>
+                    <span class="text-gray-400 text-xs">Sin imagen</span>
+                  </div>
                 </div>
-                <div v-if="ejercicio.exercise?.instructions_es" class="mb-2">
-                  <h4 class="font-semibold text-gray-800 text-xs mb-1">Instrucciones:</h4>
-                  <ul class="list-disc list-inside text-xs text-gray-700">
-                    <li v-for="(step, idx) in ejercicio.exercise.instructions_es.split('\n')" :key="idx">{{ step }}</li>
-                  </ul>
+                <!-- Exercise Info -->
+                <div class="flex-1">
+                  <h3 class="text-lg font-bold text-gray-900">
+                    {{ ejercicio.pairedExercise.exercise?.name_es || ejercicio.pairedExercise.name_es }}
+                  </h3>
+                  <div class="flex flex-wrap gap-2 text-sm text-gray-700 mb-1">
+                    <span v-if="ejercicio.pairedExercise.exercise?.bodyPart_es" class="bg-blue-50 text-blue-800 px-2 py-1 rounded">{{ ejercicio.pairedExercise.exercise.bodyPart_es }}</span>
+                    <span v-if="ejercicio.pairedExercise.exercise?.equipment_es" class="bg-purple-50 text-purple-800 px-2 py-1 rounded">{{ ejercicio.pairedExercise.exercise.equipment_es }}</span>
+                  </div>
+                  <p class="text-sm text-gray-500 mb-1">
+                    {{ ejercicio.pairedExercise.sets.length }} series
+                  </p>
                 </div>
-                <p class="text-sm text-gray-500 mb-1">
-                  {{ ejercicio.sets.length }} series
-                </p>
-                <div class="flex items-center gap-2">
+              </div>
+            </div>
+
+            <!-- Expandable Content -->
+            <div v-if="isExerciseExpanded(ejercicio.ejercicio_id || ejercicio.groupId)" class="p-4 border-t border-gray-100">
+              <!-- Action Buttons for First Exercise -->
+              <div class="mb-4 flex items-center gap-2">
+                <button
+                  v-if="ejercicio.sets.length === 0"
+                  @click="startExercise(ejercicio)"
+                  class="btn-primary text-sm"
+                >
+                  Comenzar
+                </button>
+                <button
+                  v-else
+                  @click="addSet(index)"
+                  class="btn-secondary text-sm"
+                >
+                  <Plus class="w-4 h-4 mr-1" />
+                  Añadir serie
+                </button>
+              </div>
+              
+              <!-- First Exercise Sets Table -->
+              <div v-if="ejercicio.sets.length > 0" class="mb-6">
+                <h4 class="font-medium text-gray-800 mb-2">Series de {{ ejercicio.exercise?.name_es || ejercicio.name_es }}</h4>
+                <div class="grid grid-cols-4 gap-2 text-sm font-medium text-gray-500 mb-2">
+                  <div>Serie</div>
+                  <div>Peso</div>
+                  <div>Reps</div>
+                  <div>Estado</div>
+                </div>
+                
+                <div class="space-y-2">
+                  <div
+                    v-for="(set, setIndex) in ejercicio.sets"
+                    :key="setIndex"
+                    class="grid grid-cols-4 gap-2 items-center py-2 rounded-lg transition-colors"
+                    :class="{ 'bg-emerald-50': set.completed }"
+                  >
+                    <div class="text-sm text-gray-900">
+                      {{ setIndex + 1 }}
+                    </div>
+                    
+                    <div>
+                      <input
+                        v-model.number="set.peso"
+                        type="number"
+                        min="0"
+                        step="0.5"
+                        class="w-20 px-2 py-1 text-sm border border-gray-300 rounded-lg"
+                        :disabled="set.completed"
+                      />
+                    </div>
+                    
+                    <div>
+                      <input
+                        v-model.number="set.repeticiones"
+                        type="number"
+                        min="0"
+                        class="w-16 px-2 py-1 text-sm border border-gray-300 rounded-lg"
+                        :disabled="set.completed"
+                      />
+                    </div>
+                    
+                    <div class="flex items-center gap-2">
+                      <button
+                        @click="toggleSetCompletion(ejercicio, setIndex)"
+                        class="p-1.5 rounded-lg"
+                        :class="set.completed 
+                          ? 'text-red-600 hover:text-red-700 hover:bg-red-50'
+                          : 'text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50'"
+                        :title="set.completed ? 'Desmarcar serie' : 'Completar serie'"
+                      >
+                        <Check v-if="set.completed" class="w-5 h-5" />
+                        <Timer v-else class="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Second Exercise (Paired) Sets Table -->
+              <div v-if="ejercicio.isSuperset && ejercicio.pairedExercise" class="mt-6">
+                <!-- Action Buttons for Second Exercise -->
+                <div class="mb-4 flex items-center gap-2">
                   <button
-                    v-if="ejercicio.sets.length === 0"
-                    @click="startExercise(ejercicio)"
+                    v-if="ejercicio.pairedExercise.sets.length === 0"
+                    @click="startExercise(ejercicio.pairedExercise)"
                     class="btn-primary text-sm"
                   >
                     Comenzar
                   </button>
                   <button
                     v-else
-                    @click="addSet(index)"
+                    @click="addSetToPaired(index)"
                     class="btn-secondary text-sm"
                   >
                     <Plus class="w-4 h-4 mr-1" />
                     Añadir serie
                   </button>
                 </div>
-              </div>
-            </div>
-
-            <!-- Sets Table -->
-            <div v-if="ejercicio.sets.length > 0" class="px-4">
-              <div class="grid grid-cols-4 gap-2 text-sm font-medium text-gray-500 mb-2">
-                <div>Serie</div>
-                <div>Peso</div>
-                <div>Reps</div>
-                <div>Estado</div>
-              </div>
-              
-              <div class="space-y-2">
-                <div
-                  v-for="(set, setIndex) in ejercicio.sets"
-                  :key="setIndex"
-                  class="grid grid-cols-4 gap-2 items-center py-2 rounded-lg transition-colors"
-                  :class="{ 'bg-emerald-50': set.completed }"
-                >
-                  <div class="text-sm text-gray-900">
-                    {{ setIndex + 1 }}
+                
+                <h4 class="font-medium text-gray-800 mb-2">Series de {{ ejercicio.pairedExercise.exercise?.name_es || ejercicio.pairedExercise.name_es }}</h4>
+                <div v-if="ejercicio.pairedExercise.sets.length > 0">
+                  <div class="grid grid-cols-4 gap-2 text-sm font-medium text-gray-500 mb-2">
+                    <div>Serie</div>
+                    <div>Peso</div>
+                    <div>Reps</div>
+                    <div>Estado</div>
                   </div>
                   
-                  <div>
-                    <input
-                      v-model.number="set.peso"
-                      type="number"
-                      min="0"
-                      step="0.5"
-                      class="w-20 px-2 py-1 text-sm border border-gray-300 rounded-lg"
-                      :disabled="set.completed"
-                    />
-                  </div>
-                  
-                  <div>
-                    <input
-                      v-model.number="set.repeticiones"
-                      type="number"
-                      min="0"
-                      class="w-16 px-2 py-1 text-sm border border-gray-300 rounded-lg"
-                      :disabled="set.completed"
-                    />
-                  </div>
-                  
-                  <div class="flex items-center gap-2">
-                    <button
-                      @click="toggleSetCompletion(ejercicio, setIndex)"
-                      class="p-1.5 rounded-lg"
-                      :class="set.completed 
-                        ? 'text-red-600 hover:text-red-700 hover:bg-red-50'
-                        : 'text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50'"
-                      :title="set.completed ? 'Desmarcar serie' : 'Completar serie'"
+                  <div class="space-y-2">
+                    <div
+                      v-for="(set, setIndex) in ejercicio.pairedExercise.sets"
+                      :key="setIndex"
+                      class="grid grid-cols-4 gap-2 items-center py-2 rounded-lg transition-colors"
+                      :class="{ 'bg-emerald-50': set.completed }"
                     >
-                      <Check v-if="set.completed" class="w-5 h-5" />
-                      <Timer v-else class="w-5 h-5" />
-                    </button>
+                      <div class="text-sm text-gray-900">
+                        {{ setIndex + 1 }}
+                      </div>
+                      
+                      <div>
+                        <input
+                          v-model.number="set.peso"
+                          type="number"
+                          min="0"
+                          step="0.5"
+                          class="w-20 px-2 py-1 text-sm border border-gray-300 rounded-lg"
+                          :disabled="set.completed"
+                        />
+                      </div>
+                      
+                      <div>
+                        <input
+                          v-model.number="set.repeticiones"
+                          type="number"
+                          min="0"
+                          class="w-16 px-2 py-1 text-sm border border-gray-300 rounded-lg"
+                          :disabled="set.completed"
+                        />
+                      </div>
+                      
+                      <div class="flex items-center gap-2">
+                        <button
+                          @click="toggleSetCompletion(ejercicio.pairedExercise, setIndex)"
+                          class="p-1.5 rounded-lg"
+                          :class="set.completed 
+                            ? 'text-red-600 hover:text-red-700 hover:bg-red-50'
+                            : 'text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50'"
+                          :title="set.completed ? 'Desmarcar serie' : 'Completar serie'"
+                        >
+                          <Check v-if="set.completed" class="w-5 h-5" />
+                          <Timer v-else class="w-5 h-5" />
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -243,28 +369,22 @@
       </div>
     </div>
   </div>
-
-  <RestTimerModal
-    v-if="showRestModal"
-    :visible="showRestModal"
-    :initial="restTime"
-    @close="handleRestModalClose"
-    @finished="handleRestModalFinished"
-  />
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { Pause, Play, X, Plus, Check, Timer, Calendar, Clock } from 'lucide-vue-next';
 import { useWorkoutLogsStore } from '@/stores/workoutLogs';
 import { useActiveWorkoutStore } from '@/stores/activeWorkout';
+import { useExerciseLibraryStore } from '@/stores/exerciseLibrary';
 import type { WorkoutExercise } from '@/types';
 import RestTimerModal from '@/components/training/RestTimerModal.vue';
 
 const router = useRouter();
 const workoutLogsStore = useWorkoutLogsStore();
 const activeWorkoutStore = useActiveWorkoutStore();
+const exerciseLibraryStore = useExerciseLibraryStore();
 
 // Timer state - sync with store
 const timerSeconds = ref(activeWorkoutStore.activeWorkout?.timerSeconds || 0);
@@ -274,6 +394,20 @@ let intervalId: number | null = null;
 // Workout state
 const localExercises = ref<any[]>([]);
 const workoutNotes = ref('');
+const expandedExercises = ref<Set<string>>(new Set());
+
+// Función para expandir/colapsar ejercicios
+function toggleExerciseExpanded(ejercicioId: string) {
+  if (expandedExercises.value.has(ejercicioId)) {
+    expandedExercises.value.delete(ejercicioId);
+  } else {
+    expandedExercises.value.add(ejercicioId);
+  }
+}
+
+function isExerciseExpanded(ejercicioId: string): boolean {
+  return expandedExercises.value.has(ejercicioId);
+}
 
 // Rest timer state
 const showRestModal = ref(false);
@@ -302,6 +436,51 @@ const isWorkoutComplete = computed(() => {
   );
 });
 
+// Agrupar ejercicios en superseries
+const groupedExercises = computed(() => {
+  const result: any[] = [];
+  const processed = new Set<string>();
+  
+  localExercises.value.forEach((ejercicio, idx) => {
+    if (processed.has(ejercicio.ejercicio_id)) return;
+    
+    // Buscar si este ejercicio es parte de un superset
+    const routineExercise = activeWorkoutStore.sourceRoutine?.routine_exercises?.find(
+      e => e.exercise_id === ejercicio.ejercicio_id
+    );
+    
+    if (routineExercise?.advanced_mode === 'superset' && routineExercise.superset_group_id) {
+      // Encontrar el otro ejercicio del superset
+      const pairedExercise = localExercises.value.find(e => {
+        const re = activeWorkoutStore.sourceRoutine?.routine_exercises?.find(
+          r => r.exercise_id === e.ejercicio_id
+        );
+        return re?.superset_group_id === routineExercise.superset_group_id && 
+               e.ejercicio_id !== ejercicio.ejercicio_id;
+      });
+      
+      if (pairedExercise) {
+        result.push({
+          ...ejercicio,
+          isSuperset: true,
+          groupId: routineExercise.superset_group_id,
+          pairedExercise
+        });
+        processed.add(ejercicio.ejercicio_id);
+        processed.add(pairedExercise.ejercicio_id);
+      } else {
+        result.push(ejercicio);
+        processed.add(ejercicio.ejercicio_id);
+      }
+    } else {
+      result.push(ejercicio);
+      processed.add(ejercicio.ejercicio_id);
+    }
+  });
+  
+  return result;
+});
+
 const completedSets = computed(() => {
   return localExercises.value.reduce((total, ejercicio) => {
     return total + ejercicio.sets.filter(set => set.completed).length;
@@ -322,7 +501,14 @@ const totalVolume = computed(() => {
   }, 0);
 });
 
-// Methods
+// Helpers
+function isSupersetExercise(ejercicio: any): boolean {
+  const routineExercise = activeWorkoutStore.sourceRoutine?.routine_exercises?.find(
+    e => e.exercise_id === ejercicio.ejercicio_id
+  );
+  return routineExercise?.advanced_mode === 'superset';
+}
+
 function formatDate(date: Date): string {
   return date.toLocaleDateString('es-ES', {
     weekday: 'long',
@@ -375,19 +561,22 @@ function resumeTimer() {
 }
 
 function startExercise(ejercicio: WorkoutExercise) {
-  const rutinaEjercicio = activeWorkoutStore.sourceRoutine?.ejercicios?.find(
-    e => e.id === ejercicio.ejercicio_id
+  const rutinaEjercicio = activeWorkoutStore.sourceRoutine?.routine_exercises?.find(
+    e => e.exercise_id === ejercicio.ejercicio_id
   );
 
   if (!rutinaEjercicio) return;
 
-  const baseSeries = Array(rutinaEjercicio.series).fill(null).map(() => ({
+  const baseSeries = Array(rutinaEjercicio.sets).fill(null).map(() => ({
     peso: rutinaEjercicio.peso_inicial,
-    repeticiones: rutinaEjercicio.repeticiones,
+    repeticiones: rutinaEjercicio.reps,
     completed: false
   }));
 
   ejercicio.sets = [...baseSeries];
+  
+  // Expandir automáticamente el ejercicio para mostrar las series
+  expandedExercises.value.add(ejercicio.ejercicio_id || ejercicio.groupId || '');
 }
 
 function addSet(exerciseIndex: number) {
@@ -401,14 +590,28 @@ function addSet(exerciseIndex: number) {
   });
 }
 
+function addSetToPaired(exerciseIndex: number) {
+  const ejercicio = groupedExercises.value[exerciseIndex];
+  if (!ejercicio.isSuperset || !ejercicio.pairedExercise) return;
+  
+  const pairedExercise = ejercicio.pairedExercise;
+  const lastSet = pairedExercise.sets[pairedExercise.sets.length - 1];
+  
+  pairedExercise.sets.push({
+    peso: lastSet.peso,
+    repeticiones: lastSet.repeticiones,
+    completed: false
+  });
+}
+
 function toggleSetCompletion(ejercicio: WorkoutExercise, setIndex: number) {
   const set = ejercicio.sets[setIndex];
   if (!set) return;
 
   if (!set.completed) {
     // Buscar tiempo de descanso para esta serie en la rutina
-    const rutinaEj = activeWorkoutStore.sourceRoutine?.ejercicios?.find(
-      (ej: any) => ej.id === ejercicio.ejercicio_id
+    const rutinaEj = activeWorkoutStore.sourceRoutine?.routine_exercises?.find(
+      (ej: any) => ej.exercise_id === ejercicio.ejercicio_id
     );
     let tiempo = rutinaEj?.descanso || 60;
     restTime.value = tiempo;
@@ -475,27 +678,27 @@ onMounted(async () => {
   workoutNotes.value = (workout as any).notas || '';
 
   // Obtener la librería de ejercicios
-  const exerciseLibraryStore = useExerciseLibraryStore();
-  // Si la librería está vacía, cargarla primero
   if (!exerciseLibraryStore.exercises.length) {
     console.log('[ActiveWorkoutView] Cargando librería de ejercicios...');
     await exerciseLibraryStore.fetchExerciseLibrary();
     console.log('[ActiveWorkoutView] Librería cargada:', exerciseLibraryStore.exercises.length);
   }
 
-  // Mapear los ejercicios con el objeto completo
-  localExercises.value = (routine.ejercicios || []).map(ej => {
-    // Buscar el objeto completo en la librería
-    const exerciseObj = exerciseLibraryStore.exercises.find(ex => ex.id === ej.id);
+  // Mapear los ejercicios con el objeto completo y sets
+  localExercises.value = (routine.routine_exercises || []).map(ej => {
+    // Usar el FK exercise_id para buscar en la librería
+    const exerciseId = ej.exercise_id;
+    const exerciseObj = exerciseLibraryStore.exercises.find(ex => ex.id === exerciseId);
     if (!exerciseObj) {
-      console.warn('[ActiveWorkoutView] Ejercicio no encontrado en la librería:', ej.id);
+      console.warn('[ActiveWorkoutView] Ejercicio no encontrado en la librería:', exerciseId);
     }
     return {
-      ejercicio_id: ej.id,
-      exercise: exerciseObj, // Objeto completo
-      sets: workout.ejercicios.find(e => e.ejercicio_id === ej.id)?.series || []
+      ejercicio_id: exerciseId,
+      exercise: exerciseObj,
+      sets: workout.ejercicios.find(e => e.ejercicio_id === exerciseId)?.series || []
     };
   });
+
   console.log('[ActiveWorkoutView] localExercises:', localExercises.value);
 
   startTimer();

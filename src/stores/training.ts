@@ -3,6 +3,7 @@ import { ref, computed } from 'vue';
 import { supabase } from '@/lib/supabaseClient';
 import type { Mesociclo, Rutina } from '@/types';
 import { toast } from 'vue3-toastify';
+import { v4 as uuidv4 } from 'uuid';
 
 export const useTrainingStore = defineStore('training', () => {
   const mesociclos = ref<Mesociclo[]>([]);
@@ -32,7 +33,8 @@ export const useTrainingStore = defineStore('training', () => {
             *,
             routine_exercises (
               *,
-              exercise:exercises(*)
+              exercise:exercises!routine_exercises_exercise_id_fkey(*),
+              superset_exercise:exercises!fk_superset_exercise(*)
             )
           )
         `)
@@ -128,26 +130,57 @@ export const useTrainingStore = defineStore('training', () => {
       if (rutinaError) throw rutinaError;
 
       if (data.ejercicios?.length) {
-        const routineExercisesToInsert = data.ejercicios.map((ej: any, idx: number) => {
-  const setData = JSON.stringify(ej.sets || []);
-  return {
-    routine_id: rutina.id,
-    exercise_id: ej.exercise_id || ej.id,
-    position: idx,
-    sets: ej.sets?.length || 1,
-    reps: ej.sets?.[0]?.reps || 10,
-    peso_inicial: ej.sets?.[0]?.weight || 0,
-    descanso: ej.sets?.[0]?.rest || 90,
-    set_data: setData,
-    notas: ej.notas || ''
-  };
-});
-
-        const { error: routineExercisesError } = await supabase
-          .from('routine_exercises')
-          .insert(routineExercisesToInsert);
-
-        if (routineExercisesError) throw routineExercisesError;
+        const inserts: any[] = [];
+        data.ejercicios.forEach((ej: any, idx: number) => {
+          if (ej.advancedMode === 'superset' && ej.supersetExerciseId) {
+            const groupId = uuidv4();
+            inserts.push({
+              routine_id: rutina.id,
+              exercise_id: ej.exercise_id,
+              position: idx * 2,
+              sets: ej.sets.length,
+              reps: ej.sets[0].reps,
+              peso_inicial: ej.sets[0].weight,
+              descanso: ej.sets[0].rest,
+              advanced_mode: 'superset',
+              superset_group_id: groupId,
+              superset_exercise_id: ej.supersetExerciseId,
+              set_data: JSON.stringify(ej.sets),
+              notas: ej.notas || ''
+            });
+            inserts.push({
+              routine_id: rutina.id,
+              exercise_id: ej.supersetExerciseId,
+              position: idx * 2 + 1,
+              sets: ej.supersetExercise.sets.length,
+              reps: ej.supersetExercise.sets[0].reps,
+              peso_inicial: ej.supersetExercise.sets[0].weight,
+              descanso: ej.supersetExercise.sets[0].rest,
+              advanced_mode: 'superset',
+              superset_group_id: groupId,
+              superset_exercise_id: null,
+              set_data: JSON.stringify(ej.supersetExercise.sets),
+              notas: ''
+            });
+          } else {
+            inserts.push({
+              routine_id: rutina.id,
+              exercise_id: ej.exercise_id,
+              position: idx * 2,
+              sets: ej.sets.length,
+              reps: ej.sets[0].reps,
+              peso_inicial: ej.sets[0].weight,
+              descanso: ej.sets[0].rest,
+              advanced_mode: ej.advancedMode,
+              superset_group_id: null,
+              superset_exercise_id: null,
+              set_data: JSON.stringify(ej.sets),
+              notas: ej.notas || ''
+            });
+          }
+        });
+        const { error } = await supabase.from('routine_exercises').insert(inserts);
+        if (error) throw error;
       }
 
       await fetchMesociclos();
@@ -179,26 +212,57 @@ export const useTrainingStore = defineStore('training', () => {
       if (deleteError) throw deleteError;
 
       if (data.ejercicios?.length) {
-        const routineExercisesToInsert = data.ejercicios.map((ej: any, idx: number) => {
-  const setData = JSON.stringify(ej.sets || []);
-  return {
-    routine_id: id,
-    exercise_id: ej.exercise_id || ej.id,
-    position: idx,
-    sets: ej.sets?.length || 1,
-    reps: ej.sets?.[0]?.reps || 10,
-    peso_inicial: ej.sets?.[0]?.weight || 0,
-    descanso: ej.sets?.[0]?.rest || 90,
-    set_data: setData,
-    notas: ej.notas || ''
-  };
-});
-
-        const { error: routineExercisesError } = await supabase
-          .from('routine_exercises')
-          .insert(routineExercisesToInsert);
-
-        if (routineExercisesError) throw routineExercisesError;
+        const inserts: any[] = [];
+        data.ejercicios.forEach((ej: any, idx: number) => {
+          if (ej.advancedMode === 'superset' && ej.supersetExerciseId) {
+            const groupId = uuidv4();
+            inserts.push({
+              routine_id: id,
+              exercise_id: ej.exercise_id,
+              position: idx * 2,
+              sets: ej.sets.length,
+              reps: ej.sets[0].reps,
+              peso_inicial: ej.sets[0].weight,
+              descanso: ej.sets[0].rest,
+              advanced_mode: 'superset',
+              superset_group_id: groupId,
+              superset_exercise_id: ej.supersetExerciseId,
+              set_data: JSON.stringify(ej.sets),
+              notas: ej.notas || ''
+            });
+            inserts.push({
+              routine_id: id,
+              exercise_id: ej.supersetExerciseId,
+              position: idx * 2 + 1,
+              sets: ej.supersetExercise.sets.length,
+              reps: ej.supersetExercise.sets[0].reps,
+              peso_inicial: ej.supersetExercise.sets[0].weight,
+              descanso: ej.supersetExercise.sets[0].rest,
+              advanced_mode: 'superset',
+              superset_group_id: groupId,
+              superset_exercise_id: null,
+              set_data: JSON.stringify(ej.supersetExercise.sets),
+              notas: ''
+            });
+          } else {
+            inserts.push({
+              routine_id: id,
+              exercise_id: ej.exercise_id,
+              position: idx * 2,
+              sets: ej.sets.length,
+              reps: ej.sets[0].reps,
+              peso_inicial: ej.sets[0].weight,
+              descanso: ej.sets[0].rest,
+              advanced_mode: ej.advancedMode,
+              superset_group_id: null,
+              superset_exercise_id: null,
+              set_data: JSON.stringify(ej.sets),
+              notas: ej.notas || ''
+            });
+          }
+        });
+        const { error } = await supabase.from('routine_exercises').insert(inserts);
+        if (error) throw error;
       }
       await fetchMesociclos();
     } catch (err) {
@@ -237,4 +301,6 @@ export const useTrainingStore = defineStore('training', () => {
     updateRutina,
     deleteRutina
   };
+}, {
+  persist: false
 });

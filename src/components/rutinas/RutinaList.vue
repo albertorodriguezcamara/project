@@ -16,7 +16,7 @@
             <h3 class="font-medium text-gray-900">{{ rutina.name }}</h3>
             <div class="flex items-center gap-2 mt-1">
               <span class="text-sm text-gray-500">
-                {{ rutina.ejercicios?.length || 0 }} ejercicios
+                {{ rutina.routine_exercises?.length || 0 }} ejercicios
               </span>
               <span v-if="rutina.frequency > 1" class="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full">
                 {{ rutina.frequency }}x por semana
@@ -42,11 +42,11 @@
 
         <!-- Exercise List -->
         <div 
-          v-if="rutina.ejercicios?.length" 
+          v-if="rutina.routine_exercises?.length" 
           class="mt-4 space-y-2"
         >
           <div
-            v-for="ejercicio in rutina.ejercicios"
+            v-for="ejercicio in rutina.routine_exercises"
             :key="ejercicio.id"
             class="flex items-center gap-3 p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
           >

@@ -1,4 +1,3 @@
-```vue
 <template>
   <div v-if="visible" class="fixed inset-0 z-50 flex items-center justify-center p-4">
     <!-- Backdrop -->
@@ -15,7 +14,7 @@
           <div>
             <h2 class="text-2xl font-bold text-gray-900">{{ rutina.name }}</h2>
             <p class="text-sm text-gray-500 mt-1">
-              {{ rutina.ejercicios?.length || 0 }} ejercicios
+              {{ rutina.routine_exercises?.length || 0 }} ejercicios
             </p>
           </div>
           <button 
@@ -54,7 +53,7 @@
         <!-- Exercise List -->
         <div class="space-y-3 max-h-[40vh] overflow-y-auto pr-2">
           <div 
-            v-for="(ejercicio, index) in rutina.ejercicios" 
+            v-for="(ejercicio, index) in rutina.routine_exercises" 
             :key="ejercicio.id"
             class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
           >
@@ -65,14 +64,18 @@
 
             <!-- Exercise Info -->
             <div class="flex-1">
-              <h3 class="font-medium text-gray-900">{{ ejercicio.name }}</h3>
-              <div class="flex items-center gap-2 mt-1">
-                <span class="text-sm text-gray-500">
-                  {{ ejercicio.series }}x{{ ejercicio.repeticiones }}
-                </span>
-                <span class="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full">
-                  {{ ejercicio.peso_inicial }}kg
-                </span>
+              <h3 class="font-medium text-gray-900">{{ ejercicio.exercise?.name_es || ejercicio.name }}</h3>
+              <div class="flex flex-col gap-1 mt-1">
+                <template v-if="ejercicio.advanced_mode !== 'dropset'">
+                  <span class="text-sm text-gray-500">
+                    {{ ejercicio.sets }}×{{ ejercicio.reps }}
+                  </span>
+                </template>
+                <template v-else>
+                  <span v-for="(s,i) in (ejercicio.set_data ? JSON.parse(ejercicio.set_data) : ejercicio.sets)" :key="i" class="text-sm text-gray-500">
+                    {{ s.weight }}kg×{{ s.reps }}
+                  </span>
+                </template>
               </div>
             </div>
 
@@ -132,11 +135,10 @@ const emit = defineEmits<{
 }>();
 
 const totalSets = computed(() => {
-  return props.rutina.ejercicios?.reduce((total, ej) => total + ej.series, 0) || 0;
+  return props.rutina.routine_exercises?.reduce((total, re) => total + re.sets, 0) || 0;
 });
 
 const totalReps = computed(() => {
-  return props.rutina.ejercicios?.reduce((total, ej) => total + (ej.series * ej.repeticiones), 0) || 0;
+  return props.rutina.routine_exercises?.reduce((total, re) => total + (re.sets * re.reps), 0) || 0;
 });
 </script>
-```

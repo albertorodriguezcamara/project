@@ -69,6 +69,7 @@ export const useExerciseLibraryStore = defineStore('exerciseLibrary', () => {
       if (fetchError) throw fetchError;
 
       exercises.value = (data || []).map((exercise: any) => ({
+        // Usar el id de la tabla como id (primary key)
         id: exercise.id,
         name_es: exercise.name_es,
         name_en: exercise.name_en,

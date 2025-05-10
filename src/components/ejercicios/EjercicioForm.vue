@@ -106,6 +106,15 @@
       ></textarea>
     </div>
 
+    <div>
+      <label for="advanced_mode" class="block text-sm font-medium text-gray-700 mb-1">Modo avanzado</label>
+      <select id="advanced_mode" v-model="form.advanced_mode" class="input-field">
+        <option value="normal">Normal</option>
+        <option value="dropset">Dropset</option>
+        <option value="superset">Superserie</option>
+      </select>
+    </div>
+
     <div class="flex justify-end space-x-3">
       <button
         type="button"
@@ -163,7 +172,8 @@ const form = ref({
   descanso: props.routineExercise?.descanso || 90,
   gif_url_supabase: props.routineExercise?.exercise?.gif_url_supabase || '',
   instructions_es: props.routineExercise?.exercise?.instructions_es || '',
-  rutina_id: props.rutinaId
+  rutina_id: props.rutinaId,
+  advanced_mode: props.routineExercise?.advanced_mode || 'normal'
 });
 
 onMounted(() => {

@@ -1,4 +1,3 @@
-```vue
 <template>
   <div class="fixed inset-0 z-50 bg-gray-50 overflow-y-auto">
     <!-- Header -->
@@ -101,7 +100,8 @@
               <div
                 v-for="(exercise, index) in exercises"
                 :key="exercise.id"
-                class="bg-white rounded-xl border border-gray-200 p-4 hover:border-emerald-200 transition-colors"
+                class="bg-white rounded-xl border border-gray-200 p-4 hover:border-emerald-200 transition-colors
+                cursor-pointer"
               >
                 <div class="flex items-start justify-between">
                   <div class="flex items-center space-x-4">
@@ -134,45 +134,46 @@
                 </div>
 
                 <!-- Modo Avanzado (superserie/dropset) -->
-                <div class="mt-4">
-                  <label class="block text-sm font-medium text-gray-700 mb-1">
-                    Modo Avanzado
+                <div class="flex flex-col md:flex-row md:items-center mb-2">
+                  <label class="block md:w-1/3 font-bold mb-1 md:mb-0 pr-4" for="advancedMode">
+                    Modo avanzado
                   </label>
                   <select
                     v-model="exercise.advancedMode"
-                    class="input-field"
+                    class="form-select md:w-2/3"
+                    :id="`advancedMode-${index}`"
                     @change="emitDirty"
                   >
-                    <option value="normal">Normal</option>
-                    <option value="superset">Superserie</option>
+                    <option value="">Ninguno</option>
+                    <option value="superset">Superset</option>
                     <option value="dropset">Dropset</option>
                   </select>
                 </div>
 
                 <!-- Si es Superserie -->
-                <div
-                  v-if="exercise.advancedMode === 'superset'"
-                  class="mt-2 space-y-2"
-                >
-                  <p class="text-sm text-gray-600">
-                    Selecciona el ejercicio de la superserie:
-                  </p>
-                  <button
-                    type="button"
-                    class="btn-secondary text-xs"
-                    @click="showSupersetModal(index)"
-                  >
-                    Añadir ejercicio de superserie
-                  </button>
-                  <div v-if="exercise.supersetExercise?.id" class="flex items-center space-x-3 mt-2">
-                    <img
-                      :src="exercise.supersetExercise.image_url || 'https://via.placeholder.com/50'"
-                      class="w-10 h-10 rounded object-cover"
-                      alt="Superset"
-                    />
-                    <p class="text-sm font-medium text-gray-700">
-                      {{ exercise.supersetExercise.name }}
-                    </p>
+                <div v-if="exercise.advancedMode === 'superset'" class="mt-2">
+                  <p class="text-sm text-gray-600 mb-1">Selecciona ejercicio de superserie:</p>
+                  <button type="button" @click="showSupersetModal(index)" class="btn-secondary text-xs mb-2">Añadir/Sustituir Superserie</button>
+                  <div v-if="exercise.supersetExercise" class="space-y-4">
+                    <!-- Info superset -->
+                    <div class="flex items-center space-x-3">
+                      <img :src="exercise.supersetExercise.gif_url_supabase || exercise.supersetExercise.image_url || 'https://via.placeholder.com/50'" class="w-10 h-10 rounded object-cover" />
+                      <p class="text-sm font-medium text-gray-700">{{ exercise.supersetExercise.name_es || exercise.supersetExercise.name }}</p>
+                    </div>
+                    <!-- Sets editor superset -->
+                    <div>
+                      <h5 class="text-sm font-medium text-gray-700 mb-1">Series Superserie</h5>
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+                        <div v-for="(s, si) in exercise.supersetExercise.sets" :key="si" class="flex items-center space-x-4">
+                          <div class="w-8 text-center"><span class="text-sm text-gray-500">{{ si + 1 }}</span></div>
+                          <div><input v-model.number="s.weight" type="number" min="0" step="0.5" class="input-field w-20" @change="emitDirty" /><span class="text-sm text-gray-500 ml-1">kg</span></div>
+                          <div><input v-model.number="s.reps" type="number" min="1" class="input-field w-20" @change="emitDirty" /><span class="text-sm text-gray-500 ml-1">reps</span></div>
+                          <div><input v-model.number="s.rest" type="number" min="0" step="15" class="input-field w-24" @change="emitDirty" /><span class="text-sm text-gray-500 ml-1">seg</span></div>
+                          <button type="button" @click="removeSet(exercise.supersetExercise, si)" class="text-red-500 hover:text-red-700"><Minus class="w-4 h-4"/></button>
+                        </div>
+                      </div>
+                      <button type="button" @click="addSet(exercise.supersetExercise)" class="text-sm text-blue-600 hover:text-blue-700 flex items-center"><Plus class="w-4 h-4 mr-1"/>Añadir serie</button>
+                    </div>
                   </div>
                 </div>
 
@@ -194,64 +195,69 @@
                 </div>
 
                 <!-- Sets Configuration -->
-                <div class="mt-4 space-y-3">
-                  <div
-                    v-for="(set, setIndex) in exercise.sets"
-                    :key="setIndex"
-                    class="flex items-center space-x-4"
-                  >
-                    <div class="w-8 text-center">
-                      <span class="text-sm font-medium text-gray-500">{{ setIndex + 1 }}</span>
-                    </div>
-
-                    <!-- Peso -->
-                    <div>
-                      <input
-                        v-model.number="set.weight"
-                        type="number"
-                        min="0"
-                        step="0.5"
-                        class="input-field w-20"
-                        placeholder="Peso"
-                        @change="emitDirty"
-                      />
-                      <span class="text-sm text-gray-500 ml-1">kg</span>
-                    </div>
-
-                    <!-- Repeticiones -->
-                    <div>
-                      <input
-                        v-model.number="set.reps"
-                        type="number"
-                        min="1"
-                        class="input-field w-20"
-                        placeholder="Reps"
-                        @change="emitDirty"
-                      />
-                      <span class="text-sm text-gray-500 ml-1">reps</span>
-                    </div>
-
-                    <!-- Descanso -->
-                    <div>
-                      <input
-                        v-model.number="set.rest"
-                        type="number"
-                        min="0"
-                        step="15"
-                        class="input-field w-24"
-                        placeholder="Descanso"
-                        @change="emitDirty"
-                      />
-                      <span class="text-sm text-gray-500 ml-1">seg</span>
-                    </div>
-                    <button
-                      type="button"
-                      @click="removeSet(exercise, setIndex)"
-                      class="text-red-500 hover:text-red-700"
-                      title="Eliminar esta serie"
+                <div class="mt-4">
+                  <h5 class="text-sm font-medium text-gray-700 mb-1">
+                    {{ exercise.advancedMode === 'dropset' ? 'Pasos de Dropset' : 'Series' }}
+                  </h5>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+                    <div
+                      v-for="(set, setIndex) in exercise.sets"
+                      :key="setIndex"
+                      class="flex items-center space-x-4"
                     >
-                      <Minus class="w-4 h-4" />
-                    </button>
+                      <div class="w-8 text-center">
+                        <span class="text-sm font-medium text-gray-500">{{ setIndex + 1 }}</span>
+                      </div>
+
+                      <!-- Peso -->
+                      <div>
+                        <input
+                          v-model.number="set.weight"
+                          type="number"
+                          min="0"
+                          step="0.5"
+                          class="input-field w-20"
+                          placeholder="Peso"
+                          @change="emitDirty"
+                        />
+                        <span class="text-sm text-gray-500 ml-1">kg</span>
+                      </div>
+
+                      <!-- Repeticiones -->
+                      <div>
+                        <input
+                          v-model.number="set.reps"
+                          type="number"
+                          min="1"
+                          class="input-field w-20"
+                          placeholder="Reps"
+                          @change="emitDirty"
+                        />
+                        <span class="text-sm text-gray-500 ml-1">reps</span>
+                      </div>
+
+                      <!-- Descanso -->
+                      <div>
+                        <input
+                          v-model.number="set.rest"
+                          type="number"
+                          min="0"
+                          step="15"
+                          class="input-field w-24"
+                          placeholder="Descanso"
+                          @change="emitDirty"
+                        />
+                        <span class="text-sm text-gray-500 ml-1">seg</span>
+                      </div>
+                      <button
+                        type="button"
+                        @click="removeSet(exercise, setIndex)"
+                        class="text-red-500 hover:text-red-700"
+                        title="Eliminar esta serie"
+                      >
+                        <Minus class="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                   <button
                     type="button"
@@ -259,9 +265,10 @@
                     class="text-sm text-blue-600 hover:text-blue-700 flex items-center"
                   >
                     <Plus class="w-4 h-4 mr-1" />
-                    Añadir serie
+                    {{ exercise.advancedMode === 'dropset' ? 'Añadir paso' : 'Añadir serie' }}
                   </button>
                 </div>
+
               </div>
             </div>
           </div>
@@ -588,43 +595,69 @@ onMounted(async () => {
   if (!exerciseLibraryStore.exercises.length) {
     await exerciseLibraryStore.fetchExerciseLibrary();
   }
-  if (props.rutina?.ejercicios) {
-    exercises.value = props.rutina.ejercicios.map(ej => {
-      let parsedSets = [];
-      try {
-        parsedSets = ej.set_data ? JSON.parse(ej.set_data) : [];
-      } catch {
-        parsedSets = [];
-      }
-
-      return {
-        id: ej.exercise_id,
-        exercise_id: ej.exercise_id,
-        name: ej.exercise?.name || ej.name,
-        name_es: ej.exercise?.name_es,
-        image_url: ej.exercise?.image_url,
-        gif_url_supabase: ej.exercise?.gif_url_supabase,
-        musculos_principales: ej.exercise?.musculos_principales || [],
-        advancedMode: ej.advanced_mode || 'normal',
-        supersetExerciseId: ej.superset_exercise_id || null,
-        supersetExercise: null,
-        dropSets: ej.drop_sets || 0,
-        sets: parsedSets.length > 0 ? parsedSets : [{
-          weight: ej.peso_inicial,
-          reps: ej.repeticiones,
-          rest: ej.descanso || 90
-        }]
-      };
-    });
-
-    for (const ex of exercises.value) {
-      if (ex.supersetExerciseId) {
-        const found = exerciseLibraryStore.exercises.find(e => e.id === ex.supersetExerciseId);
-        if (found) {
-          ex.supersetExercise = found;
-        }
+  // Cargar ejercicios guardados usando routine_exercises
+  if (props.rutina?.routine_exercises?.length) {
+    const raw = [...props.rutina.routine_exercises].sort((a, b) => a.position - b.position);
+    const processed: any[] = [];
+    const seenGroups = new Set<string>();
+    for (const rec of raw) {
+      if (rec.superset_group_id) {
+        if (seenGroups.has(rec.superset_group_id)) continue;
+        seenGroups.add(rec.superset_group_id);
+        const pair = raw.filter(r => r.superset_group_id === rec.superset_group_id);
+        const mainRec = pair.find(r => r.superset_exercise_id) as any;
+        const partnerRec = pair.find(r => !r.superset_exercise_id) as any;
+        const mainSets = mainRec.set_data ? JSON.parse(mainRec.set_data) : [];
+        const partnerSets = partnerRec.set_data ? JSON.parse(partnerRec.set_data) : [];
+        const mainInfo = exerciseLibraryStore.exercises.find(e => e.id === mainRec.exercise_id) || {};
+        const partInfo = exerciseLibraryStore.exercises.find(e => e.id === partnerRec.exercise_id) || {};
+        processed.push({
+          id: mainRec.exercise_id,
+          exercise_id: mainRec.exercise_id,
+          name: mainInfo.name || mainRec.name,
+          name_es: mainInfo.name_es,
+          image_url: mainInfo.image_url,
+          gif_url_supabase: mainInfo.gif_url_supabase,
+          musculos_principales: mainInfo.musculos_principales || [],
+          advancedMode: 'superset',
+          supersetExerciseId: partnerRec.exercise_id,
+          supersetExercise: {
+            id: partnerRec.exercise_id,
+            exercise_id: partnerRec.exercise_id,
+            name: partInfo.name || partnerRec.name,
+            name_es: partInfo.name_es,
+            image_url: partInfo.image_url,
+            gif_url_supabase: partInfo.gif_url_supabase,
+            musculos_principales: partInfo.musculos_principales || [],
+            advancedMode: 'normal',
+            supersetExerciseId: null,
+            supersetExercise: null,
+            dropSets: 0,
+            sets: partnerSets
+          },
+          dropSets: mainRec.drop_sets || 0,
+          sets: mainSets
+        });
+      } else {
+        const sets = rec.set_data ? JSON.parse(rec.set_data) : [];
+        const info = exerciseLibraryStore.exercises.find(e => e.id === rec.exercise_id) || {};
+        processed.push({
+          id: rec.exercise_id,
+          exercise_id: rec.exercise_id,
+          name: info.name || rec.name,
+          name_es: info.name_es,
+          image_url: info.image_url,
+          gif_url_supabase: info.gif_url_supabase,
+          musculos_principales: info.musculos_principales || [],
+          advancedMode: rec.advanced_mode || 'normal',
+          supersetExerciseId: null,
+          supersetExercise: null,
+          dropSets: rec.drop_sets || 0,
+          sets: sets.length ? sets : [{ weight: rec.peso_inicial, reps: rec.repeticiones, rest: rec.descanso || 90 }]
+        });
       }
     }
+    exercises.value = processed;
   }
 });
 
@@ -704,11 +737,26 @@ function cancelSupersetModal() {
   showSupersetIndex.value = null;
 }
 
-function selectSupersetExercise(exercise: any) {
+function selectSupersetExercise(raw: any) {
   if (showSupersetIndex.value === null) return;
   const i = showSupersetIndex.value;
-  exercises.value[i].supersetExerciseId = exercise.id;
-  exercises.value[i].supersetExercise = exercise;
+  // construye objeto de rutina para superset
+  const supEx = {
+    id: raw.id,
+    exercise_id: raw.id,
+    name: raw.name,
+    name_es: raw.name_es,
+    image_url: raw.image_url,
+    gif_url_supabase: raw.gif_url_supabase,
+    musculos_principales: raw.musculos_principales || [],
+    advancedMode: 'normal',
+    supersetExerciseId: null,
+    supersetExercise: null,
+    dropSets: 0,
+    sets: [{ weight: 0, reps: 12, rest: 90 }]
+  };
+  exercises.value[i].supersetExerciseId = raw.id;
+  exercises.value[i].supersetExercise = supEx;
   showSupersetIndex.value = null;
   emitDirty();
 }
@@ -728,6 +776,7 @@ async function handleSubmit() {
         name: ex.name,
         advancedMode: ex.advancedMode,
         supersetExerciseId: ex.supersetExerciseId,
+        supersetExercise: ex.advancedMode === 'superset' ? ex.supersetExercise : null,
         dropSets: ex.dropSets,
         sets: ex.sets
       }))
@@ -750,4 +799,3 @@ async function handleSubmit() {
   }
 }
 </script>
-```

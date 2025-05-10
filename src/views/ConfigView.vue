@@ -55,7 +55,7 @@
               </div>
 
               <MesocicloList
-                :mesociclos="trainingStore.mesociclos"
+                :mesociclos="trainingStore.sortedMesociclos"
                 @edit="editMesociclo"
                 @select="selectMesociclo"
                 @add-rutina="handleAddRutina"
@@ -97,7 +97,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { 
   UserCircle, 
   Dumbbell, 
@@ -114,6 +114,12 @@ import { toast } from 'vue3-toastify';
 
 const router = useRouter();
 const trainingStore = useTrainingStore();
+console.log('ConfigView mounted, initial mesociclos:', trainingStore.mesociclos);
+onMounted(async () => {
+  console.log('Fetching mesociclos on mount');
+  await trainingStore.fetchMesociclos();
+  console.log('Mesociclos after fetch:', trainingStore.mesociclos);
+});
 
 // Navigation
 const configSections = [
@@ -190,10 +196,12 @@ function cancelMesocicloForm() {
   selectedMesociclo.value = undefined;
 }
 
-function handleMesocicloSaved() {
+async function handleMesocicloSaved() {
+  console.log('handleMesocicloSaved start');
   showMesocicloForm.value = false;
   selectedMesociclo.value = undefined;
-  trainingStore.fetchMesociclos();
+  await trainingStore.fetchMesociclos();
+  console.log('Mesociclos after saving mesociclo:', trainingStore.mesociclos);
 }
 
 function cancelRutinaForm() {
@@ -207,10 +215,12 @@ function cancelRutinaForm() {
   isRutinaDirty.value = false;
 }
 
-function handleRutinaSaved() {
+async function handleRutinaSaved() {
+  console.log('handleRutinaSaved start');
   showRutinaForm.value = false;
   selectedRutina.value = undefined;
   isRutinaDirty.value = false;
-  trainingStore.fetchMesociclos();
+  await trainingStore.fetchMesociclos();
+  console.log('Mesociclos after saving rutina:', trainingStore.mesociclos);
 }
 </script>

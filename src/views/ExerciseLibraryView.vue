@@ -232,34 +232,41 @@
     <!-- Exercise Detail Modal -->
     <div
       v-if="selectedExercise"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-60 backdrop-blur-sm"
       @click.self="closeExerciseDetails"
     >
-      <div class="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto animate-scale-in">
-        <div class="sticky top-0 z-10 bg-white border-b border-gray-200 p-4 flex justify-between items-center">
-          <h2 class="text-xl font-bold text-gray-900">{{ selectedExercise.name }}</h2>
-          <button @click="closeExerciseDetails" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto border border-gray-100 animate-scale-in">
+        <!-- Header -->
+        <div class="sticky top-0 z-10 bg-gradient-to-r from-blue-50 to-blue-100 border-b border-gray-100 p-5 flex justify-between items-center">
+          <div class="flex items-center">
+            <div class="bg-blue-600 text-white p-2 rounded-lg mr-3">
+              <Dumbbell class="w-6 h-6" />
+            </div>
+            <h2 class="text-xl font-bold text-gray-900">{{ capitalize(selectedExercise.name_es) || selectedExercise.name || 'Ejercicio' }}</h2>
+          </div>
+          <button @click="closeExerciseDetails" class="p-2 rounded-full hover:bg-white/50 active:scale-95 transition-all" aria-label="Cerrar">
             <X class="w-6 h-6 text-gray-500" />
           </button>
         </div>
 
-        <div class="p-6">
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Body -->
+        <div class="p-8">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <!-- Left Column -->
             <div>
-              <div class="aspect-video rounded-lg overflow-hidden mb-6">
+              <div class="rounded-xl overflow-hidden relative h-64 shadow-md border border-gray-100/50 mb-6">
                 <template v-if="selectedExercise.gif_url_supabase">
                   <img
                     :src="selectedExercise.gif_url_supabase"
                     :alt="selectedExercise.name_es || selectedExercise.name_english || 'GIF ejercicio'"
-                    class="w-full h-full object-cover mb-4"
+                    class="w-full h-full object-cover"
                   />
                 </template>
                 <template v-else-if="getExerciseMediaUrl(selectedExercise, 'image') || getExerciseMediaUrl(selectedExercise, 'auto')">
                   <img
                     :src="getExerciseMediaUrl(selectedExercise, 'image') || getExerciseMediaUrl(selectedExercise, 'auto')"
                     :alt="selectedExercise.name_es || selectedExercise.name_english || 'Imagen ejercicio'"
-                    class="w-full h-full object-cover mb-4"
+                    class="w-full h-full object-cover"
                   />
                 </template>
                 <template v-else>
@@ -267,50 +274,36 @@
                     <Dumbbell class="w-12 h-12 text-gray-400" />
                   </div>
                 </template>
-                <div class="mt-2 space-y-2 text-left">
-                  <h2 class="text-xl font-bold text-gray-900 mb-2">{{ capitalize(selectedExercise.name_es) || 'Nombre no disponible' }}</h2>
-                  <div class="flex flex-wrap gap-2 text-sm text-gray-700 mb-2">
-                    <span class="bg-blue-50 text-blue-800 px-2 py-1 rounded">{{ selectedExercise.bodyPart_es || 'Grupo muscular no disponible' }}</span>
-                    <span class="bg-green-50 text-green-800 px-2 py-1 rounded">Principal: {{ selectedExercise.target_es || 'No disponible' }}</span>
-                    <span class="bg-yellow-50 text-yellow-800 px-2 py-1 rounded">Secundarios: {{ selectedExercise.secondaryMuscles_es || 'No disponible' }}</span>
-                    <span class="bg-purple-50 text-purple-800 px-2 py-1 rounded">Equipo: {{ selectedExercise.equipment_es || 'No disponible' }}</span>
-                  </div>
-                  <div class="mt-4">
-                    <h3 class="font-semibold text-gray-800 mb-1">Instrucciones:</h3>
-                    <ul class="list-disc list-inside text-gray-700">
-                      <li v-if="selectedExercise.instructions_es" v-for="(step, idx) in selectedExercise.instructions_es.split('\n')" :key="idx">{{ step }}</li>
-                      <li v-else class="text-gray-400">No disponible</li>
-                    </ul>
-                  </div>
-                </div>
+                <!-- Overlay gradiente en la parte inferior -->
+                <div class="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/70 to-transparent"></div>
               </div>
 
-              <div class="space-y-4">
-                <div>
-                  <h3 class="text-sm font-medium text-gray-700">Nombre</h3>
-                  <p class="mt-1">{{ capitalize(selectedExercise.name_es) || 'No disponible' }}</p>
-                </div>
-                <div>
-                  <h3 class="text-sm font-medium text-gray-700">Grupo muscular</h3>
-                  <p class="mt-1">{{ selectedExercise.bodyPart_es || 'No disponible' }}</p>
-                </div>
-                <div>
-                  <h3 class="text-sm font-medium text-gray-700">Principal</h3>
-                  <p class="mt-1">{{ selectedExercise.target_es || 'No disponible' }}</p>
-                </div>
-                <div>
-                  <h3 class="text-sm font-medium text-gray-700">Secundarios</h3>
-                  <p class="mt-1">{{ selectedExercise.secondaryMuscles_es || 'No disponible' }}</p>
-                </div>
-                <div>
-                  <h3 class="text-sm font-medium text-gray-700">Equipo</h3>
-                  <p class="mt-1">{{ selectedExercise.equipment_es || 'No disponible' }}</p>
-                </div>
-                <div>
-                  <h3 class="text-sm font-medium text-gray-700">Instrucciones</h3>
-                  <ul class="list-disc list-inside text-gray-700">
-                    <li v-if="selectedExercise.instructions_es" v-for="(step, idx) in selectedExercise.instructions_es.split('\n')" :key="idx">{{ step }}</li>
-                    <li v-else class="text-gray-400">No disponible</li>
+              <!-- Grupos musculares y equipo -->
+              <div class="flex flex-wrap gap-2 mb-5">
+                <span class="text-xs bg-blue-50 text-blue-700 px-3 py-1 rounded-full border border-blue-100 font-medium">
+                  {{ selectedExercise.bodyPart_es || 'Grupo muscular no disponible' }}
+                </span>
+                <span class="text-xs bg-green-50 text-green-700 px-3 py-1 rounded-full border border-green-100 font-medium">
+                  Principal: {{ selectedExercise.target_es || 'No disponible' }}
+                </span>
+                <span class="text-xs bg-yellow-50 text-yellow-700 px-3 py-1 rounded-full border border-yellow-100 font-medium">
+                  Secundarios: {{ selectedExercise.secondaryMuscles_es || 'No disponible' }}
+                </span>
+                <span class="text-xs bg-purple-50 text-purple-700 px-3 py-1 rounded-full border border-purple-100 font-medium flex items-center">
+                  <Dumbbell class="inline w-4 h-4 mr-1 text-purple-400" />
+                  Equipo: {{ selectedExercise.equipment_es || 'No disponible' }}
+                </span>
+              </div>
+                <div class="bg-gradient-to-br from-gray-50 to-blue-50 p-6 rounded-xl border border-gray-100/80 shadow-md mt-4">
+                  <h3 class="font-semibold text-blue-900 mb-3 flex items-center text-base">
+                    <span class="mr-2">📋</span>
+                    Instrucciones
+                  </h3>
+                  <ul class="list-decimal list-inside text-gray-800 text-[15px] leading-relaxed pl-2 space-y-1">
+                    <li v-if="selectedExercise.instructions_es" v-for="(step, idx) in selectedExercise.instructions_es.split('\n')" :key="idx">
+                      <span class="font-medium">Paso {{ idx + 1 }}:</span> <span class="font-normal">{{ step }}</span>
+                    </li>
+                    <li v-else class="text-gray-400 italic">No disponible</li>
                   </ul>
                 </div>
               </div>
@@ -329,7 +322,6 @@
         </div>
       </div>
     </div>
-  </div>
 </template>
 
 <script setup lang="ts">
@@ -504,29 +496,70 @@ async function loadExercisesFromSupabase() {
 async function showExerciseDetails(exercise: any) {
   // Asignar directamente el ejercicio recibido, así el popup siempre corresponde al click
   selectedExercise.value = { ...exercise };
+  console.log('Detalles del ejercicio seleccionado:', selectedExercise.value);
 
-  // Fetch exercise logs
+  // Inicializar valores para logs
   logsLoading.value = true;
+  exerciseLogsForSelected.value = []; // Siempre inicializar vacío
+  
   try {
-    const { data, error } = await supabase
+    // Primero, intentar obtener solo la estructura de la tabla
+    const { error: schemaError } = await supabase
       .from('workout_set_logs')
       .select('*')
-      .eq('ejercicio_id', selectedExercise.value.id)
-      .order('created_at', { ascending: true });
-
-    if (!error && data) {
-      exerciseLogsForSelected.value = data.map(log => ({
-        fecha: log.fecha,
-        peso: log.peso,
-        repeticiones: log.repeticiones
-      }));
+      .limit(1);
+    
+    // Si hay error de esquema, probablemente la tabla no existe o no tenemos acceso
+    if (schemaError) {
+      console.warn('La tabla workout_set_logs no existe o no es accesible:', schemaError);
+      // No hacemos más intentos, simplemente continuamos sin logs
+    } else {
+      // La tabla existe, podemos intentar obtener logs específicos
+      // Consulta directa con ID de rutina si está disponible
+      if (exercise.rutina_id) {
+        const { data } = await supabase
+          .from('workout_set_logs')
+          .select('*')
+          .eq('rutina_id', exercise.rutina_id)
+          .order('created_at', { ascending: true });
+        
+        if (data && data.length > 0) {
+          console.log('Logs encontrados por rutina_id:', data.length);
+          mapLogsData(data);
+        }
+      }
     }
   } catch (e) {
-    console.error('Error al buscar logs:', e);
-    exerciseLogsForSelected.value = [];
+    console.error('Error inesperado al buscar logs:', e);
   } finally {
     logsLoading.value = false;
   }
+}
+
+// Función helper para mapear datos de logs con diferentes estructuras posibles
+function mapLogsData(data: any[]) {
+  if (!data || data.length === 0) return;
+  
+  // Intentar determinar qué campos contiene el primer registro
+  const firstLog = data[0];
+  const fields = Object.keys(firstLog);
+  
+  console.log('Campos disponibles en logs:', fields);
+  
+  // Mapear datos basados en los campos disponibles
+  exerciseLogsForSelected.value = data.map(log => ({
+    fecha: tryGetField(log, ['fecha', 'date', 'created_at']),
+    peso: tryGetField(log, ['peso', 'weight'], 0),
+    repeticiones: tryGetField(log, ['repeticiones', 'reps', 'repeats'], 0)
+  }));
+}
+
+// Función helper para obtener un campo con varios nombres posibles
+function tryGetField(obj: any, fieldNames: string[], defaultValue: any = '') {
+  for (const name of fieldNames) {
+    if (obj[name] !== undefined) return obj[name];
+  }
+  return defaultValue;
 }
 
 

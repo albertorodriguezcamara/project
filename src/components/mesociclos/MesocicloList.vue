@@ -1,4 +1,3 @@
-```vue
 <template>
   <div class="space-y-4">
     <TransitionGroup
@@ -99,7 +98,7 @@
                 <span class="font-medium text-gray-800">{{ rutina.name }}</span>
                 <div class="flex items-center space-x-2">
                   <span class="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded-full">
-                    {{ rutina.ejercicios?.length || 0 }} ejercicios
+                    {{ rutina.routine_exercises?.length || 0 }} ejercicios
                   </span>
                   <!-- Botones de acción que aparecen al hover -->
                   <div class="opacity-0 group-hover:opacity-100 transition-opacity flex items-center space-x-1">
@@ -121,9 +120,9 @@
                 </div>
               </div>
               <!-- Vista previa de ejercicios -->
-              <div v-if="rutina.ejercicios?.length" class="mt-2 space-y-1">
+              <div v-if="rutina.routine_exercises?.length" class="mt-2 space-y-1">
                 <div
-                  v-for="ejercicio in rutina.ejercicios.slice(0, 3)"
+                  v-for="ejercicio in rutina.routine_exercises.slice(0, 3)"
                   :key="ejercicio.id"
                   class="text-sm text-gray-600 flex items-center space-x-2"
                 >
@@ -133,10 +132,10 @@
                   </span>
                 </div>
                 <div
-                  v-if="rutina.ejercicios.length > 3"
+                  v-if="rutina.routine_exercises.length > 3"
                   class="text-xs text-gray-500"
                 >
-                  Y {{ rutina.ejercicios.length - 3 }} ejercicios más...
+                  Y {{ rutina.routine_exercises.length - 3 }} ejercicios más...
                 </div>
               </div>
             </div>
@@ -178,9 +177,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import { GripVertical, Pencil, Trash2, Power, Plus } from 'lucide-vue-next';
 import { useTrainingStore } from '@/stores/training';
+import { storeToRefs } from 'pinia';
 import type { Mesociclo, Rutina } from '@/types';
 import { toast } from 'vue3-toastify';
 
@@ -196,7 +196,18 @@ const emit = defineEmits<{
 }>();
 
 const trainingStore = useTrainingStore();
-const { sortedMesociclos, deleteMesociclo: removeMesociclo, updateMesociclo } = trainingStore;
+// Reactive refs for store state and getters
+const { sortedMesociclos } = storeToRefs(trainingStore);
+const removeMesociclo = trainingStore.deleteMesociclo;
+const updateMesociclo = trainingStore.updateMesociclo;
+
+console.log('MesocicloList mounted, initial sortedMesociclos:', sortedMesociclos);
+onMounted(() => {
+  console.log('MesocicloList onMounted, sortedMesociclos:', sortedMesociclos);
+});
+watch(sortedMesociclos, (val) => {
+  console.log('MesocicloList watch sortedMesociclos changed:', val);
+});
 
 const isDragging = ref(false);
 const draggedId = ref<string | null>(null);
@@ -315,4 +326,3 @@ async function handleDrop(event: DragEvent, dropTarget: Mesociclo) {
   cursor: grabbing;
 }
 </style>
-```

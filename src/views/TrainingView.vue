@@ -1,4 +1,3 @@
-```vue
 <template>
   <div class="space-y-6">
     <RoutinePreviewModal
@@ -79,7 +78,7 @@
             <div>
               <h3 class="text-lg font-bold text-gray-900">{{ rutina.name }}</h3>
               <p class="text-sm text-gray-500">
-                {{ (rutina.ejercicios?.length || 0) }} ejercicios
+                {{ (rutina.routine_exercises?.length || 0) }} ejercicios
               </p>
             </div>
             <div 
@@ -96,20 +95,30 @@
           <!-- Exercise Preview -->
           <div class="space-y-2">
             <div 
-              v-for="(ejercicio, index) in rutina.ejercicios?.slice(0, 3)"
+              v-for="(ejercicio, index) in rutina.routine_exercises?.slice(0, 3)"
               :key="ejercicio.id"
               class="flex items-center text-sm text-gray-600"
             >
               <div class="w-6 h-6 bg-gray-100 rounded-lg flex items-center justify-center mr-2">
                 <span class="text-xs text-gray-500">{{ index + 1 }}</span>
               </div>
-              {{ ejercicio.name }}
+              <span class="font-medium">{{ ejercicio.exercise?.name_es }}</span>
+              <div class="flex flex-col ml-2 text-gray-500">
+                <template v-if="ejercicio.advanced_mode !== 'dropset'">
+                  <span class="text-sm">{{ ejercicio.sets }}×{{ ejercicio.reps }}</span>
+                </template>
+                <template v-else>
+                  <span v-for="(s,i) in (ejercicio.set_data ? JSON.parse(ejercicio.set_data) : ejercicio.sets)" :key="i" class="text-xs">
+                    {{ s.weight }}kg×{{ s.reps }}
+                  </span>
+                </template>
+              </div>
             </div>
             <div 
-              v-if="(rutina.ejercicios?.length || 0) > 3"
+              v-if="(rutina.routine_exercises?.length || 0) > 3"
               class="text-sm text-gray-400 pl-8"
             >
-              Y {{ rutina.ejercicios!.length - 3 }} ejercicios más...
+              Y {{ rutina.routine_exercises!.length - 3 }} ejercicios más...
             </div>
           </div>
 
@@ -118,7 +127,7 @@
             <div class="text-center">
               <p class="text-sm text-gray-500">Series totales</p>
               <p class="text-lg font-bold text-gray-900">
-                {{ rutina.ejercicios?.reduce((acc, ej) => acc + ej.series, 0) || 0 }}
+                {{ rutina.routine_exercises?.reduce((acc, ej) => acc + ej.sets, 0) || 0 }}
               </p>
             </div>
             <div class="text-center">
@@ -189,4 +198,3 @@ function isRoutineCompleted(rutinaId: string) {
   return false; // Implement real logic based on workout logs
 }
 </script>
-```

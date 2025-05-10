@@ -1,6 +1,11 @@
 <template>
   <div class="min-h-screen bg-gray-50">
-    <RestTimerModal :visible="showRestModal" :initial="restTime" @close="handleRestModalClose" @finished="handleRestModalFinished" />
+    <RestTimerModal
+      :visible="showRestModal"
+      :initial="restTime"
+      @close="handleRestModalClose"
+      @finished="handleRestModalFinished"
+    />
     <!-- Header with Timer -->
     <div class="bg-gradient-to-r from-blue-600 to-blue-700 sticky top-0 z-20">
       <div class="max-w-7xl mx-auto px-4 py-8">
@@ -101,7 +106,10 @@
                     <img :src="ejercicio.exercise.gif_url_supabase" :alt="ejercicio.exercise?.name_es || 'GIF ejercicio'" class="object-cover w-full h-full" />
                   </template>
                   <div v-else class="flex flex-col items-center justify-center h-full w-full">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" class="text-gray-400 mb-1"><circle cx="16" cy="16" r="14"/><path d="M8 16h8l4 4"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" class="text-gray-400 mb-1">
+                      <circle cx="16" cy="16" r="14"/>
+                      <path d="M8 16h8l4 4"/>
+                    </svg>
                     <span class="text-gray-400 text-xs">Sin imagen</span>
                   </div>
                 </div>
@@ -111,7 +119,10 @@
                     <h3 class="text-lg font-bold text-gray-900">
                       {{ ejercicio.exercise?.name_es || ejercicio.name_es }}
                     </h3>
-                    <div class="ml-2 p-1 rounded-full hover:bg-gray-200" @click.stop>
+                    <div
+                      class="ml-2 p-1 rounded-full hover:bg-gray-200"
+                      @click.stop
+                    >
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 transform transition-transform" :class="{'rotate-180': isExerciseExpanded(ejercicio.ejercicio_id || ejercicio.groupId)}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                       </svg>
@@ -120,7 +131,7 @@
                   <div class="flex flex-wrap gap-2 text-sm text-gray-700 mb-1">
                     <span v-if="ejercicio.exercise?.bodyPart_es" class="bg-blue-50 text-blue-800 px-2 py-1 rounded">{{ ejercicio.exercise.bodyPart_es }}</span>
                     <span v-if="ejercicio.exercise?.equipment_es" class="bg-purple-50 text-purple-800 px-2 py-1 rounded">{{ ejercicio.exercise.equipment_es }}</span>
-                    <span v-if="isSupersetExercise(ejercicio)" class="bg-red-50 text-red-800 px-2 py-1 rounded font-semibold">Superserie</span>
+                    <span v-if="ejercicio.isSuperset" class="bg-red-50 text-red-800 px-2 py-1 rounded font-semibold">Superserie</span>
                   </div>
                   <p class="text-sm text-gray-500 mb-1">
                     {{ ejercicio.sets.length }} series
@@ -129,14 +140,20 @@
               </div>
               
               <!-- Second Exercise (if superset) -->
-              <div v-if="ejercicio.isSuperset && ejercicio.pairedExercise" class="flex flex-1 flex-col md:flex-row md:items-center gap-4 mt-4 md:mt-0 md:border-l md:pl-4 border-gray-200">
+              <div
+                v-if="ejercicio.isSuperset && ejercicio.pairedExercise"
+                class="flex flex-1 flex-col md:flex-row md:items-center gap-4 mt-4 md:mt-0 md:border-l md:pl-4 border-gray-200"
+              >
                 <!-- Exercise GIF -->
                 <div class="w-28 h-20 flex-shrink-0 flex items-center justify-center rounded-lg overflow-hidden bg-gray-100">
                   <template v-if="ejercicio.pairedExercise.exercise?.gif_url_supabase">
                     <img :src="ejercicio.pairedExercise.exercise.gif_url_supabase" :alt="ejercicio.pairedExercise.exercise?.name_es || 'GIF ejercicio'" class="object-cover w-full h-full" />
                   </template>
                   <div v-else class="flex flex-col items-center justify-center h-full w-full">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" class="text-gray-400 mb-1"><circle cx="16" cy="16" r="14"/><path d="M8 16h8l4 4"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" class="text-gray-400 mb-1">
+                      <circle cx="16" cy="16" r="14"/>
+                      <path d="M8 16h8l4 4"/>
+                    </svg>
                     <span class="text-gray-400 text-xs">Sin imagen</span>
                   </div>
                 </div>
@@ -157,7 +174,10 @@
             </div>
 
             <!-- Expandable Content -->
-            <div v-if="isExerciseExpanded(ejercicio.ejercicio_id || ejercicio.groupId)" class="p-4 border-t border-gray-100">
+            <div
+              v-if="isExerciseExpanded(ejercicio.ejercicio_id || ejercicio.groupId)"
+              class="p-4 border-t border-gray-100"
+            >
               <!-- Action Buttons for First Exercise -->
               <div class="mb-4 flex items-center gap-2">
                 <button
@@ -179,7 +199,9 @@
               
               <!-- First Exercise Sets Table -->
               <div v-if="ejercicio.sets.length > 0" class="mb-6">
-                <h4 class="font-medium text-gray-800 mb-2">Series de {{ ejercicio.exercise?.name_es || ejercicio.name_es }}</h4>
+                <h4 class="font-medium text-gray-800 mb-2">
+                  Series de {{ ejercicio.exercise?.name_es || ejercicio.name_es }}
+                </h4>
                 <div class="grid grid-cols-4 gap-2 text-sm font-medium text-gray-500 mb-2">
                   <div>Serie</div>
                   <div>Peso</div>
@@ -237,7 +259,10 @@
               </div>
               
               <!-- Second Exercise (Paired) Sets Table -->
-              <div v-if="ejercicio.isSuperset && ejercicio.pairedExercise" class="mt-6">
+              <div
+                v-if="ejercicio.isSuperset && ejercicio.pairedExercise"
+                class="mt-6"
+              >
                 <!-- Action Buttons for Second Exercise -->
                 <div class="mb-4 flex items-center gap-2">
                   <button
@@ -257,7 +282,9 @@
                   </button>
                 </div>
                 
-                <h4 class="font-medium text-gray-800 mb-2">Series de {{ ejercicio.pairedExercise.exercise?.name_es || ejercicio.pairedExercise.name_es }}</h4>
+                <h4 class="font-medium text-gray-800 mb-2">
+                  Series de {{ ejercicio.pairedExercise.exercise?.name_es || ejercicio.pairedExercise.name_es }}
+                </h4>
                 <div v-if="ejercicio.pairedExercise.sets.length > 0">
                   <div class="grid grid-cols-4 gap-2 text-sm font-medium text-gray-500 mb-2">
                     <div>Serie</div>
@@ -361,9 +388,8 @@
           <button
             @click="finishWorkout"
             class="w-full btn-primary py-4"
-            :disabled="!isWorkoutComplete"
           >
-            {{ isWorkoutComplete ? 'Finalizar Entrenamiento' : 'Completa todas las series' }}
+            Finalizar Entrenamiento
           </button>
         </div>
       </div>
@@ -378,8 +404,29 @@ import { Pause, Play, X, Plus, Check, Timer, Calendar, Clock } from 'lucide-vue-
 import { useWorkoutLogsStore } from '@/stores/workoutLogs';
 import { useActiveWorkoutStore } from '@/stores/activeWorkout';
 import { useExerciseLibraryStore } from '@/stores/exerciseLibrary';
-import type { WorkoutExercise } from '@/types';
 import RestTimerModal from '@/components/training/RestTimerModal.vue';
+
+/**
+ * Interfaces para mayor robustez
+ */
+interface SetData {
+  peso: number;
+  repeticiones: number;
+  completed: boolean;
+}
+
+interface LocalExercise {
+  ejercicio_id: string|number;
+  exercise?: any;
+  sets: SetData[];
+  // Campos para manejar superserie
+  isSuperset?: boolean;
+  groupId?: string|number|null;
+  pairedExercise?: LocalExercise;
+  name_es?: string; // Por si la rutina o el store tienen name_es
+}
+
+//----------------------------------
 
 const router = useRouter();
 const workoutLogsStore = useWorkoutLogsStore();
@@ -392,22 +439,9 @@ const isPaused = ref(activeWorkoutStore.activeWorkout?.isPaused || false);
 let intervalId: number | null = null;
 
 // Workout state
-const localExercises = ref<any[]>([]);
+const localExercises = ref<LocalExercise[]>([]);
 const workoutNotes = ref('');
 const expandedExercises = ref<Set<string>>(new Set());
-
-// Función para expandir/colapsar ejercicios
-function toggleExerciseExpanded(ejercicioId: string) {
-  if (expandedExercises.value.has(ejercicioId)) {
-    expandedExercises.value.delete(ejercicioId);
-  } else {
-    expandedExercises.value.add(ejercicioId);
-  }
-}
-
-function isExerciseExpanded(ejercicioId: string): boolean {
-  return expandedExercises.value.has(ejercicioId);
-}
 
 // Rest timer state
 const showRestModal = ref(false);
@@ -416,9 +450,12 @@ const restExerciseName = ref('');
 const restSerieIdx = ref<number|null>(null);
 const restExerciseIdx = ref<number|null>(null);
 
-// Sincroniza el progreso local con el store (y localStorage) automáticamente
+//----------------------------------
+// WATCHERS: Sincroniza con el store
+//----------------------------------
 watch([localExercises, workoutNotes, timerSeconds, isPaused], () => {
   if (!activeWorkoutStore.activeWorkout) return;
+  
   activeWorkoutStore.activeWorkout.ejercicios = localExercises.value.map(e => ({
     ejercicio_id: e.ejercicio_id,
     series: e.sets
@@ -428,7 +465,9 @@ watch([localExercises, workoutNotes, timerSeconds, isPaused], () => {
   (activeWorkoutStore.activeWorkout as any).notas = workoutNotes.value;
 }, { deep: true });
 
-// Computed
+//----------------------------------
+// COMPUTED
+//----------------------------------
 const isWorkoutComplete = computed(() => {
   return localExercises.value.every(ejercicio =>
     ejercicio.sets.length > 0 &&
@@ -436,51 +475,7 @@ const isWorkoutComplete = computed(() => {
   );
 });
 
-// Agrupar ejercicios en superseries
-const groupedExercises = computed(() => {
-  const result: any[] = [];
-  const processed = new Set<string>();
-  
-  localExercises.value.forEach((ejercicio, idx) => {
-    if (processed.has(ejercicio.ejercicio_id)) return;
-    
-    // Buscar si este ejercicio es parte de un superset
-    const routineExercise = activeWorkoutStore.sourceRoutine?.routine_exercises?.find(
-      e => e.exercise_id === ejercicio.ejercicio_id
-    );
-    
-    if (routineExercise?.advanced_mode === 'superset' && routineExercise.superset_group_id) {
-      // Encontrar el otro ejercicio del superset
-      const pairedExercise = localExercises.value.find(e => {
-        const re = activeWorkoutStore.sourceRoutine?.routine_exercises?.find(
-          r => r.exercise_id === e.ejercicio_id
-        );
-        return re?.superset_group_id === routineExercise.superset_group_id && 
-               e.ejercicio_id !== ejercicio.ejercicio_id;
-      });
-      
-      if (pairedExercise) {
-        result.push({
-          ...ejercicio,
-          isSuperset: true,
-          groupId: routineExercise.superset_group_id,
-          pairedExercise
-        });
-        processed.add(ejercicio.ejercicio_id);
-        processed.add(pairedExercise.ejercicio_id);
-      } else {
-        result.push(ejercicio);
-        processed.add(ejercicio.ejercicio_id);
-      }
-    } else {
-      result.push(ejercicio);
-      processed.add(ejercicio.ejercicio_id);
-    }
-  });
-  
-  return result;
-});
-
+// Conteo de series totales
 const completedSets = computed(() => {
   return localExercises.value.reduce((total, ejercicio) => {
     return total + ejercicio.sets.filter(set => set.completed).length;
@@ -493,6 +488,7 @@ const totalSets = computed(() => {
   }, 0);
 });
 
+// Volumen total (solo sets completados)
 const totalVolume = computed(() => {
   return localExercises.value.reduce((total, ejercicio) => {
     return total + ejercicio.sets.reduce((setTotal, set) => {
@@ -501,14 +497,65 @@ const totalVolume = computed(() => {
   }, 0);
 });
 
-// Helpers
-function isSupersetExercise(ejercicio: any): boolean {
-  const routineExercise = activeWorkoutStore.sourceRoutine?.routine_exercises?.find(
-    e => e.exercise_id === ejercicio.ejercicio_id
-  );
-  return routineExercise?.advanced_mode === 'superset';
+/**
+ * Ajustamos "groupedExercises" para que si un ejercicio es parte de superserie
+ * y ya está enlazado con "pairedExercise", aparezcan ambos en UN SOLO BLOQUE.
+ * Evita duplicar la misma superserie dos veces.
+ */
+const groupedExercises = computed(() => {
+  const output: LocalExercise[] = [];
+  const visited = new Set<string>();
+
+  for (const ex of localExercises.value) {
+    const exId = String(ex.ejercicio_id);
+    if (visited.has(exId)) {
+      // Ya lo hemos agregado (o es el paired de otro).
+      continue;
+    }
+
+    // Si es superserie y tiene paired, agregamos este "ex" al output
+    // y marcamos también el paired como visitado para no duplicarlo.
+    if (ex.isSuperset && ex.pairedExercise) {
+      output.push(ex);
+      visited.add(exId);
+      visited.add(String(ex.pairedExercise.ejercicio_id));
+    } else {
+      // Normal (o superset sin paired)
+      output.push(ex);
+      visited.add(exId);
+    }
+  }
+
+  return output;
+});
+
+//----------------------------------
+// FUNCIONES DE AYUDA
+//----------------------------------
+function toggleExerciseExpanded(ejercicioId: string|number) {
+  const idStr = String(ejercicioId);
+  if (expandedExercises.value.has(idStr)) {
+    expandedExercises.value.delete(idStr);
+  } else {
+    expandedExercises.value.add(idStr);
+  }
 }
 
+function isExerciseExpanded(ejercicioId: string|number): boolean {
+  return expandedExercises.value.has(String(ejercicioId));
+}
+
+// Descanso
+function handleRestModalClose() {
+  showRestModal.value = false;
+}
+function handleRestModalFinished() {
+  showRestModal.value = false;
+}
+
+//----------------------------------
+// TIMER
+//----------------------------------
 function formatDate(date: Date): string {
   return date.toLocaleDateString('es-ES', {
     weekday: 'long',
@@ -560,11 +607,21 @@ function resumeTimer() {
   }
 }
 
-function startExercise(ejercicio: WorkoutExercise) {
-  const rutinaEjercicio = activeWorkoutStore.sourceRoutine?.routine_exercises?.find(
-    e => e.exercise_id === ejercicio.ejercicio_id
-  );
+function stopWorkout() {
+  if (confirm('¿Estás seguro de que quieres terminar el entrenamiento?')) {
+    activeWorkoutStore.clear();
+    router.push('/training');
+  }
+}
 
+//----------------------------------
+// LÓGICA DE SERIES
+//----------------------------------
+function startExercise(ejercicio: LocalExercise) {
+  // Buscar correspondencia en la rutina base
+  const rutinaEjercicio = activeWorkoutStore.sourceRoutine?.routine_exercises?.find(
+    (e: any) => String(e.exercise_uuid || e.exercise_id) === String(ejercicio.ejercicio_id)
+  );
   if (!rutinaEjercicio) return;
 
   const baseSeries = Array(rutinaEjercicio.sets).fill(null).map(() => ({
@@ -574,76 +631,98 @@ function startExercise(ejercicio: WorkoutExercise) {
   }));
 
   ejercicio.sets = [...baseSeries];
-  
-  // Expandir automáticamente el ejercicio para mostrar las series
-  expandedExercises.value.add(ejercicio.ejercicio_id || ejercicio.groupId || '');
+  // Expandir en la UI
+  expandedExercises.value.add(String(ejercicio.ejercicio_id || ejercicio.groupId || ''));
 }
 
 function addSet(exerciseIndex: number) {
-  const ejercicio = localExercises.value[exerciseIndex];
+  const ejercicio = groupedExercises.value[exerciseIndex];
+  if (!ejercicio) return;
   const lastSet = ejercicio.sets[ejercicio.sets.length - 1];
-  
   ejercicio.sets.push({
-    peso: lastSet.peso,
-    repeticiones: lastSet.repeticiones,
+    peso: lastSet?.peso ?? 0,
+    repeticiones: lastSet?.repeticiones ?? 0,
     completed: false
   });
 }
 
 function addSetToPaired(exerciseIndex: number) {
   const ejercicio = groupedExercises.value[exerciseIndex];
-  if (!ejercicio.isSuperset || !ejercicio.pairedExercise) return;
+  if (!ejercicio || !ejercicio.isSuperset || !ejercicio.pairedExercise) return;
   
   const pairedExercise = ejercicio.pairedExercise;
   const lastSet = pairedExercise.sets[pairedExercise.sets.length - 1];
-  
   pairedExercise.sets.push({
-    peso: lastSet.peso,
-    repeticiones: lastSet.repeticiones,
+    peso: lastSet?.peso ?? 0,
+    repeticiones: lastSet?.repeticiones ?? 0,
     completed: false
   });
 }
 
-function toggleSetCompletion(ejercicio: WorkoutExercise, setIndex: number) {
+function toggleSetCompletion(ejercicio: LocalExercise, setIndex: number) {
   const set = ejercicio.sets[setIndex];
   if (!set) return;
 
   if (!set.completed) {
-    // Buscar tiempo de descanso para esta serie en la rutina
+    // Buscar tiempo de descanso para esta serie en la rutina (si lo deseas)
     const rutinaEj = activeWorkoutStore.sourceRoutine?.routine_exercises?.find(
-      (ej: any) => ej.exercise_id === ejercicio.ejercicio_id
+      (rE: any) => String(rE.exercise_id) === String(ejercicio.ejercicio_id)
     );
     let tiempo = rutinaEj?.descanso || 60;
     restTime.value = tiempo;
-    restExerciseName.value = ejercicio.exerciseName;
+    restExerciseName.value = (ejercicio.exercise?.name_es || ejercicio.name_es) ?? '';
     restSerieIdx.value = setIndex;
     restExerciseIdx.value = setIndex;
     showRestModal.value = true;
   }
   
   set.completed = !set.completed;
+
+  // Log de depuración para superseries
+  if (ejercicio.isSuperset) {
+    const paired = ejercicio.pairedExercise;
+    const printSets = (sets: SetData[]) =>
+      sets.map(s => ({ peso: s.peso, repeticiones: s.repeticiones, completed: s.completed }));
+    console.log('[Superset][toggleSetCompletion] Estado tras marcar set:', {
+      ejercicio_id: ejercicio.ejercicio_id,
+      sets: printSets(ejercicio.sets),
+      paired_id: paired?.ejercicio_id,
+      paired_sets: paired ? printSets(paired.sets) : []
+    });
+  }
 }
 
-function handleRestModalClose() {
-  showRestModal.value = false;
-}
-
-function handleRestModalFinished() {
-  showRestModal.value = false;
-}
-
+//----------------------------------
+// GUARDAR ENTRENAMIENTO
+//----------------------------------
 async function finishWorkout() {
   try {
+    // Depuración
+    console.log('[DEBUG] Sets por ejercicio antes de guardar:', localExercises.value.map(e => ({
+      ejercicio_id: e.ejercicio_id,
+      sets: e.sets
+    })));
+
+    // Aviso si algún ejercicio no tiene sets
+    const ejerciciosSinSets = localExercises.value.filter(e => e.sets.length === 0);
+    if (ejerciciosSinSets.length > 0) {
+      alert('Atención: Hay ejercicios sin sets. Estos no se guardarán.');
+      console.warn('[WARN] Ejercicios sin sets:', ejerciciosSinSets.map(e => e.ejercicio_id));
+    }
+
+    // Guardar solo ejercicios con sets
     await workoutLogsStore.saveWorkout({
       ...activeWorkoutStore.activeWorkout!,
-      ejercicios: localExercises.value.map(e => ({
-        ejercicio_id: e.ejercicio_id,
-        series: e.sets.map(s => ({
-          peso: s.peso,
-          repeticiones: s.repeticiones,
-          completed: s.completed
-        }))
-      })),
+      ejercicios: localExercises.value
+        .filter(e => e.sets.length > 0)
+        .map(e => ({
+          ejercicio_id: e.ejercicio_id,
+          series: e.sets.map(s => ({
+            peso: s.peso,
+            repeticiones: s.repeticiones,
+            completed: s.completed
+          }))
+        })),
       duracion: Math.max(1, Math.floor(timerSeconds.value / 60)), // nunca 0 minutos
       notas: workoutNotes.value
     });
@@ -655,14 +734,9 @@ async function finishWorkout() {
   }
 }
 
-function stopWorkout() {
-  if (confirm('¿Estás seguro de que quieres terminar el entrenamiento?')) {
-    activeWorkoutStore.clear();
-    router.push('/training');
-  }
-}
-
-// Lifecycle
+//----------------------------------
+// onMounted - Carga inicial
+//----------------------------------
 onMounted(async () => {
   const workout = activeWorkoutStore.activeWorkout;
   const routine = activeWorkoutStore.sourceRoutine;
@@ -672,39 +746,120 @@ onMounted(async () => {
     return;
   }
 
-  // Initialize timer from store
+  // Inicializa timer
   timerSeconds.value = workout.timerSeconds || 0;
   isPaused.value = workout.isPaused || false;
   workoutNotes.value = (workout as any).notas || '';
 
-  // Obtener la librería de ejercicios
+  // Cargar librería de ejercicios si no está
   if (!exerciseLibraryStore.exercises.length) {
     console.log('[ActiveWorkoutView] Cargando librería de ejercicios...');
     await exerciseLibraryStore.fetchExerciseLibrary();
     console.log('[ActiveWorkoutView] Librería cargada:', exerciseLibraryStore.exercises.length);
   }
 
-  // Mapear los ejercicios con el objeto completo y sets
-  localExercises.value = (routine.routine_exercises || []).map(ej => {
-    // Usar el FK exercise_id para buscar en la librería
-    const exerciseId = ej.exercise_id;
-    const exerciseObj = exerciseLibraryStore.exercises.find(ex => ex.id === exerciseId);
-    if (!exerciseObj) {
-      console.warn('[ActiveWorkoutView] Ejercicio no encontrado en la librería:', exerciseId);
-    }
-    return {
-      ejercicio_id: exerciseId,
-      exercise: exerciseObj,
-      sets: workout.ejercicios.find(e => e.ejercicio_id === exerciseId)?.series || []
-    };
+  // Mapa de sets, proveniente del store
+  const setsMap: Record<string, SetData[]> = {};
+  (workout.ejercicios || []).forEach((ej: any) => {
+    setsMap[String(ej.ejercicio_id)] = ej.series ? ej.series.map((s: any) => ({...s})) : [];
   });
 
-  console.log('[ActiveWorkoutView] localExercises:', localExercises.value);
+  // Generar localExercises con superset
+  localExercises.value = [];
+  const addedIds = new Set<string>();
+
+  (routine.routine_exercises || []).forEach((ej: any) => {
+    const exerciseId = String(ej.exercise_uuid || ej.exercise_id);
+    if (addedIds.has(exerciseId)) return;
+    const exerciseObj = exerciseLibraryStore.exercises.find(ex => String(ex.id) === exerciseId);
+
+    localExercises.value.push({
+      ejercicio_id: exerciseObj?.id ?? exerciseId,
+      exercise: exerciseObj,
+      sets: setsMap[exerciseId] || [],
+      isSuperset: (ej.advanced_mode === 'superset'),
+      groupId: ej.superset_group_id || null
+    });
+    addedIds.add(exerciseId);
+
+    // Si es superserie, intentar buscar el paired
+    if (ej.advanced_mode === 'superset' && ej.superset_group_id) {
+      const paired = (routine.routine_exercises || []).find(
+        (e2: any) => e2 !== ej && e2.superset_group_id === ej.superset_group_id
+      );
+      if (paired) {
+        const pairedId = String(paired.exercise_uuid || paired.exercise_id);
+        if (!addedIds.has(pairedId)) {
+          const pairedObj = exerciseLibraryStore.exercises.find(ex => String(ex.id) === pairedId);
+          localExercises.value.push({
+            ejercicio_id: pairedObj?.id ?? pairedId,
+            exercise: pairedObj,
+            sets: setsMap[pairedId] || [],
+            isSuperset: true,
+            groupId: paired.superset_group_id
+          });
+          addedIds.add(pairedId);
+        }
+      }
+    }
+  });
+
+  // Tras tener ambos ejercicios, enlazarlos en pairedExercise
+  // (Así cada uno referencia al otro, quedando en la UI tal como se muestra.)
+  for (const ex1 of localExercises.value) {
+    if (ex1.isSuperset && ex1.groupId) {
+      // Buscar el "otro"
+      const ex2 = localExercises.value.find(
+        e => e !== ex1 && e.groupId === ex1.groupId
+      );
+      if (ex2) {
+        ex1.pairedExercise = ex2;
+      }
+    }
+  }
+
+  console.log('[ActiveWorkoutView] Mapeo localExercises final:', localExercises.value);
 
   startTimer();
 });
 
+//----------------------------------
+// onUnmounted
+//----------------------------------
 onUnmounted(() => {
   stopTimer();
 });
 </script>
+
+<style scoped>
+/* Ocultar scrollbar pero mantener funcionalidad */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* Estilos para botones */
+.btn-primary {
+  @apply bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-4 rounded-lg font-medium text-sm transition-colors;
+}
+.btn-secondary {
+  @apply bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-4 rounded-lg font-medium text-sm transition-colors;
+}
+
+/* Estilos para cards */
+.card {
+  @apply bg-white rounded-lg shadow-sm border border-gray-100;
+}
+
+/* Animaciones */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+</style>

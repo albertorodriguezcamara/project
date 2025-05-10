@@ -21,7 +21,6 @@ export interface Exercise {
   uuid?: string;
 }
 
-
 interface ExerciseLog {
   id: string;
   ejercicio_id: string;
@@ -69,8 +68,8 @@ export const useExerciseLibraryStore = defineStore('exerciseLibrary', () => {
       if (fetchError) throw fetchError;
 
       exercises.value = (data || []).map((exercise: any) => ({
-        // Usar el id de la tabla como id (primary key)
-        id: exercise.id,
+        // Usar UUID como id principal si existe
+        id: exercise.uuid || exercise.id,
         name_es: exercise.name_es,
         name_en: exercise.name_en,
         bodyPart_es: exercise.bodyPart_es,
@@ -137,13 +136,25 @@ export const useExerciseLibraryStore = defineStore('exerciseLibrary', () => {
 
       if (rutinaError) throw rutinaError;
 
+      // resolve UUIDs to integer IDs for ejercicios
+      const uuidList = data.ejercicios.map(e => e.exercise_id);
+      const { data: exerciseRecords, error: mapError } = await supabase
+        .from('exercises')
+        .select('id, uuid')
+        .in('uuid', uuidList);
+      if (mapError) throw mapError;
+      const ejercicioIdMap: Record<string, number> = {};
+      exerciseRecords.forEach(rec => { ejercicioIdMap[rec.uuid!] = rec.id; });
+
       // Then create all ejercicios for this rutina
       const ejerciciosPromises = data.ejercicios.map(async (ejercicio) => {
+        const exId = ejercicioIdMap[ejercicio.exercise_id];
+        if (!exId) throw new Error(`Exercise UUID ${ejercicio.exercise_id} not found`);
         const { error: ejercicioError } = await supabase
           .from('ejercicios')
           .insert([{
             rutina_id: rutinaData.id,
-            exercise_id: ejercicio.exercise_id,
+            exercise_id: exId,
             series: ejercicio.sets.length,
             repeticiones: ejercicio.sets[0].reps,
             peso_inicial: ejercicio.sets[0].weight

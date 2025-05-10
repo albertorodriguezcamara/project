@@ -44,7 +44,7 @@ export const useWorkoutLogsStore = defineStore('workoutLogs', () => {
           .from('workout_exercise_logs')
           .insert({
             workout_id: wLog.id,
-            ejercicio_id: exReal.ejercicio_id,
+            ejercicio_id: exReal.ejercicio_id, // UUID correcto
             orden: i + 1
           })
           .select()
@@ -59,7 +59,7 @@ export const useWorkoutLogsStore = defineStore('workoutLogs', () => {
           peso: s.peso,
           repeticiones: s.repeticiones,
           completed: s.completed || false,
-          ejercicio_id: exReal.id // <-- Usa el UUID real del ejercicio
+          ejercicio_id: exReal.ejercicio_id // Usa siempre el UUID
         }));
 
         console.log('[saveWorkout] Insertando sets en workout_set_logs:', setsToInsert);

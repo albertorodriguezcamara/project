@@ -114,6 +114,9 @@ export const useTrainingStore = defineStore('training', () => {
     }
   }
 
+  /**
+   * Crea una rutina, guardando exercise_id (entero) y exercise_uuid (UUID) en routine_exercises.
+   */
   async function createRutina(data: any) {
     try {
       const { data: rutina, error: rutinaError } = await supabase
@@ -129,14 +132,57 @@ export const useTrainingStore = defineStore('training', () => {
 
       if (rutinaError) throw rutinaError;
 
+      // 1) Recolectar TODOS los UUID de los ejercicios (incluso los paired)
+      const uuidList = data.ejercicios.flatMap((ej: any) =>
+        ej.advancedMode === 'superset' && ej.supersetExerciseId
+          ? [ej.exercise_id, ej.supersetExerciseId]
+          : [ej.exercise_id]
+      );
+
+      // 2) Buscar en la tabla "exercises" por .in('uuid', uuidList) => {id, uuid}
+      const { data: exerciseRecords, error: mapError } = await supabase
+        .from('exercises')
+        .select('id, uuid')
+        .in('uuid', uuidList);
+
+      if (mapError) throw mapError;
+
+      // 3) Crear un map de uuid -> id
+      const ejercicioIdMap: Record<string, number> = {};
+      exerciseRecords.forEach(rec => {
+        if (!rec.uuid) return;
+        ejercicioIdMap[rec.uuid] = rec.id;
+      });
+
       if (data.ejercicios?.length) {
         const inserts: any[] = [];
+
         data.ejercicios.forEach((ej: any, idx: number) => {
+          // mainId = ID entero
+          const mainId = ejercicioIdMap[ej.exercise_id];
+          if (!mainId) {
+            throw new Error(`Exercise UUID ${ej.exercise_id} not found in DB`);
+          }
+          // mainUuid = (buscamos el row con rec.id === mainId)
+          const mainUuid = exerciseRecords.find(
+            rec => String(rec.id) === String(mainId)
+          )?.uuid || ej.exercise_id; // fallback
+
           if (ej.advancedMode === 'superset' && ej.supersetExerciseId) {
             const groupId = uuidv4();
+            const supId = ejercicioIdMap[ej.supersetExerciseId];
+            if (!supId) {
+              throw new Error(`Superset Exercise UUID ${ej.supersetExerciseId} not found in DB`);
+            }
+            const supUuid = exerciseRecords.find(
+              rec => String(rec.id) === String(supId)
+            )?.uuid || ej.supersetExerciseId;
+
+            // Inserción para el ejercicio principal
             inserts.push({
               routine_id: rutina.id,
-              exercise_id: ej.exercise_id,
+              exercise_id: mainId,
+              exercise_uuid: mainUuid, // <-- Guardar UUID real
               position: idx * 2,
               sets: ej.sets.length,
               reps: ej.sets[0].reps,
@@ -144,13 +190,17 @@ export const useTrainingStore = defineStore('training', () => {
               descanso: ej.sets[0].rest,
               advanced_mode: 'superset',
               superset_group_id: groupId,
-              superset_exercise_id: ej.supersetExerciseId,
+              superset_exercise_id: supId,      // ID entero del paired
+              // superset_exercise_uuid no existe en tu schema, ignoramos
               set_data: JSON.stringify(ej.sets),
               notas: ej.notas || ''
             });
+
+            // Inserción para el ejercicio paired
             inserts.push({
               routine_id: rutina.id,
-              exercise_id: ej.supersetExerciseId,
+              exercise_id: supId,
+              exercise_uuid: supUuid,
               position: idx * 2 + 1,
               sets: ej.supersetExercise.sets.length,
               reps: ej.supersetExercise.sets[0].reps,
@@ -158,14 +208,16 @@ export const useTrainingStore = defineStore('training', () => {
               descanso: ej.supersetExercise.sets[0].rest,
               advanced_mode: 'superset',
               superset_group_id: groupId,
-              superset_exercise_id: null,
+              superset_exercise_id: null, // no hay un "tercer" ejercicio
               set_data: JSON.stringify(ej.supersetExercise.sets),
               notas: ''
             });
           } else {
+            // Ejercicio normal
             inserts.push({
               routine_id: rutina.id,
-              exercise_id: ej.exercise_id,
+              exercise_id: mainId,
+              exercise_uuid: mainUuid,
               position: idx * 2,
               sets: ej.sets.length,
               reps: ej.sets[0].reps,
@@ -179,6 +231,8 @@ export const useTrainingStore = defineStore('training', () => {
             });
           }
         });
+
+        // 4) Insertar en routine_exercises
         const { error } = await supabase.from('routine_exercises').insert(inserts);
         if (error) throw error;
       }
@@ -204,6 +258,25 @@ export const useTrainingStore = defineStore('training', () => {
 
       if (rutinaError) throw rutinaError;
 
+      // resolve UUIDs to integer IDs for routine_exercises
+      const uuidList = data.ejercicios.flatMap((ej: any) =>
+        ej.advancedMode === 'superset' && ej.supersetExerciseId
+          ? [ej.exercise_id, ej.supersetExerciseId]
+          : [ej.exercise_id]
+      );
+      const { data: exerciseRecords, error: mapError } = await supabase
+        .from('exercises')
+        .select('id, uuid')
+        .in('uuid', uuidList);
+
+      if (mapError) throw mapError;
+
+      const ejercicioIdMap: Record<string, number> = {};
+      exerciseRecords.forEach(rec => {
+        if (!rec.uuid) return;
+        ejercicioIdMap[rec.uuid] = rec.id;
+      });
+
       const { error: deleteError } = await supabase
         .from('routine_exercises')
         .delete()
@@ -214,11 +287,25 @@ export const useTrainingStore = defineStore('training', () => {
       if (data.ejercicios?.length) {
         const inserts: any[] = [];
         data.ejercicios.forEach((ej: any, idx: number) => {
+          const mainId = ejercicioIdMap[ej.exercise_id];
+          if (!mainId) throw new Error(`Exercise UUID ${ej.exercise_id} not found`);
+          const mainUuid = exerciseRecords.find(
+            rec => String(rec.id) === String(mainId)
+          )?.uuid || ej.exercise_id;
+
           if (ej.advancedMode === 'superset' && ej.supersetExerciseId) {
             const groupId = uuidv4();
+            const supId = ejercicioIdMap[ej.supersetExerciseId];
+            if (!supId) throw new Error(`Superset Exercise UUID ${ej.supersetExerciseId} not found`);
+            const supUuid = exerciseRecords.find(
+              rec => String(rec.id) === String(supId)
+            )?.uuid || ej.supersetExerciseId;
+
+            // principal
             inserts.push({
               routine_id: id,
-              exercise_id: ej.exercise_id,
+              exercise_id: mainId,
+              exercise_uuid: mainUuid,
               position: idx * 2,
               sets: ej.sets.length,
               reps: ej.sets[0].reps,
@@ -226,13 +313,16 @@ export const useTrainingStore = defineStore('training', () => {
               descanso: ej.sets[0].rest,
               advanced_mode: 'superset',
               superset_group_id: groupId,
-              superset_exercise_id: ej.supersetExerciseId,
+              superset_exercise_id: supId,
               set_data: JSON.stringify(ej.sets),
               notas: ej.notas || ''
             });
+
+            // paired
             inserts.push({
               routine_id: id,
-              exercise_id: ej.supersetExerciseId,
+              exercise_id: supId,
+              exercise_uuid: supUuid,
               position: idx * 2 + 1,
               sets: ej.supersetExercise.sets.length,
               reps: ej.supersetExercise.sets[0].reps,
@@ -245,9 +335,11 @@ export const useTrainingStore = defineStore('training', () => {
               notas: ''
             });
           } else {
+            // ejercicio normal
             inserts.push({
               routine_id: id,
-              exercise_id: ej.exercise_id,
+              exercise_id: mainId,
+              exercise_uuid: mainUuid,
               position: idx * 2,
               sets: ej.sets.length,
               reps: ej.sets[0].reps,

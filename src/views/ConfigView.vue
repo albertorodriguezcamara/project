@@ -63,11 +63,6 @@
               />
             </div>
           </div>
-
-          <!-- Advanced Settings -->
-          <div v-show="activeSection === 'settings'">
-            <SettingsView />
-          </div>
         </div>
       </div>
     </div>
@@ -115,7 +110,6 @@ import type { Mesociclo, Rutina } from '@/types';
 import MesocicloList from '@/components/mesociclos/MesocicloList.vue';
 import MesocicloForm from '@/components/mesociclos/MesocicloForm.vue';
 import RutinaForm from '@/components/rutinas/RutinaForm.vue';
-import SettingsView from '@/views/SettingsView.vue';
 import { toast } from 'vue3-toastify';
 
 const router = useRouter();

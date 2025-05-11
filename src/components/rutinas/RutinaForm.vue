@@ -522,6 +522,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
+import { v4 as uuidv4 } from 'uuid';
 import { Plus, Minus, Search, Trash2, X, Dumbbell, Check, Filter } from 'lucide-vue-next';
 import { useTrainingStore } from '@/stores/training';
 import { useExerciseLibraryStore } from '@/stores/exerciseLibrary';
@@ -571,6 +572,8 @@ onMounted(async () => {
 
   // Si es edición, mapear los ejercicios según la query
   if (props.rutina?.routine_exercises?.length) {
+    console.log('==[DEBUG]== rutina.routine_exercises:', JSON.parse(JSON.stringify(props.rutina.routine_exercises)));
+
     const raw = [...props.rutina.routine_exercises].sort((a, b) => a.position - b.position);
     console.log("RUTINE_EXERCISES RECEIVED:", raw);
 
@@ -608,7 +611,10 @@ onMounted(async () => {
                 name: partnerRec.exercise?.name_es,
                 image_url: partnerRec.exercise?.gif_url_supabase,
                 musculos_principales: partnerRec.exercise?.target_es,
-                advancedMode: 'normal',
+                advancedMode: 'superset',
+                supersetExerciseId: null,
+                supersetExercise: null,
+                dropSets: 0,
                 sets: partnerRec.set_data ? JSON.parse(partnerRec.set_data) : [],
               }
             : null,
@@ -629,6 +635,7 @@ onMounted(async () => {
         });
       }
     }
+    console.log('==[DEBUG]== processed exercises for editing:', JSON.parse(JSON.stringify(processed)));
     exercises.value = processed;
   }
 });
@@ -701,6 +708,9 @@ function selectSupersetExercise(raw: any) {
   if (showSupersetIndex.value === null) return;
   const i = showSupersetIndex.value;
 
+  // Marcar el ejercicio como superserie
+  exercises.value[i].advancedMode = 'superset';
+
   const supEx = {
     id: raw.id,
     exercise_id: raw.id,
@@ -709,7 +719,7 @@ function selectSupersetExercise(raw: any) {
     image_url: raw.image_url,
     gif_url_supabase: raw.gif_url_supabase,
     musculos_principales: raw.musculos_principales || [],
-    advancedMode: 'normal',
+    advancedMode: 'superset',
     supersetExerciseId: null,
     supersetExercise: null,
     dropSets: 0,
@@ -726,28 +736,63 @@ function selectSupersetExercise(raw: any) {
 async function handleSubmit() {
   try {
     isLoading.value = true;
+    console.log('==[DEBUG]== exercises.value before submit:', JSON.parse(JSON.stringify(exercises.value)));
+
+
+    // Aplanar superseries y asignar superset_group_id
+    const ejercicios = exercises.value.flatMap(ex => {
+      // Obtener UUID principal
+      const mainUuid = ex.exercise?.uuid || ex.exercise_id;
+      // Si es superserie, obtener UUID del paired
+      const pairedUuid = ex.supersetExercise?.exercise?.uuid || ex.supersetExercise?.exercise_id || null;
+      if (ex.advancedMode === 'superset' && ex.supersetExercise) {
+        const groupId = uuidv4();
+        return [
+          {
+            ...ex,
+            exercise_id: mainUuid,
+            superset_group_id: groupId,
+            supersetExercise: undefined,
+            supersetExerciseId: pairedUuid,
+            // El principal apunta al paired (UUID)
+          },
+          {
+            ...ex.supersetExercise,
+            exercise_id: pairedUuid,
+            advancedMode: 'superset',
+            superset_group_id: groupId,
+            supersetExerciseId: null,
+            supersetExercise: undefined,
+          }
+        ];
+      }
+      // Normal
+      return [{ ...ex, exercise_id: mainUuid, supersetExercise: undefined }];
+    });
 
     const data = {
+      // DEBUG
+      _debug: {
+        exercises: JSON.parse(JSON.stringify(exercises.value)),
+        form: JSON.parse(JSON.stringify(form.value)),
+      },
       name: form.value.name,
       order: form.value.order,
       frequency: form.value.frequency,
       mesociclo_id: form.value.mesociclo_id,
-      ejercicios: exercises.value.map(ex => ({
-        // Usa UUIDs en vez de ids numéricos
+      ejercicios: ejercicios.map(ex => ({
         exercise_id: ex.exercise?.uuid || ex.exercise_id,
         id: ex.id,
         name: ex.name,
         advancedMode: ex.advancedMode,
-        supersetExerciseId: ex.supersetExercise?.uuid || null,
-        supersetExercise: ex.advancedMode === 'superset' && ex.supersetExercise ? {
-          ...ex.supersetExercise,
-          exercise_id: ex.supersetExercise?.uuid || ex.supersetExercise?.exercise_id
-        } : null,
+        superset_group_id: ex.superset_group_id || null,
+        supersetExerciseId: ex.supersetExerciseId || null,
         dropSets: ex.dropSets,
         sets: ex.sets
       }))
     };
 
+    console.log('==[DEBUG]== payload to store:', JSON.parse(JSON.stringify(data)));
     if (props.rutina) {
       // Modo edición
       await trainingStore.updateRutina(props.rutina.id, data);

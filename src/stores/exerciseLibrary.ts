@@ -220,21 +220,6 @@ export const useExerciseLibraryStore = defineStore('exerciseLibrary', () => {
     }
   }
 
-  async function clearAllProgress() {
-    try {
-      isLoading.value = true;
-      error.value = null;
-      const { error: err } = await supabase.from('workout_set_logs').delete();
-      if (err) throw err;
-      exerciseLogs.value = [];
-    } catch (err) {
-      console.error('Error clearing progress:', err);
-      toast.error('Error al borrar progreso');
-    } finally {
-      isLoading.value = false;
-    }
-  }
-
   function getRandomImage(): string {
     return DEFAULT_IMAGES[Math.floor(Math.random() * DEFAULT_IMAGES.length)];
   }
@@ -265,8 +250,6 @@ export const useExerciseLibraryStore = defineStore('exerciseLibrary', () => {
     fetchExerciseLibrary,
     fetchExerciseLogs,
     createRutina,
-    updateRutina,
-    getRandomImage,
-    clearAllProgress
+    updateRutina
   };
 });

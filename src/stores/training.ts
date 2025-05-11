@@ -38,8 +38,7 @@ export const useTrainingStore = defineStore('training', () => {
             )
           )
         `)
-        .order('order') // ordenar mesociclos
-        .order('order', { foreignTable: 'rutinas' }); // ordenar rutinas dentro de cada mesociclo
+        .order('order');
 
       if (err) throw err;
 
@@ -159,81 +158,50 @@ export const useTrainingStore = defineStore('training', () => {
         const inserts: any[] = [];
 
         data.ejercicios.forEach((ej: any, idx: number) => {
-          // mainId = ID entero
           const mainId = ejercicioIdMap[ej.exercise_id];
           if (!mainId) {
             throw new Error(`Exercise UUID ${ej.exercise_id} not found in DB`);
           }
-          // mainUuid = (buscamos el row con rec.id === mainId)
           const mainUuid = exerciseRecords.find(
             rec => String(rec.id) === String(mainId)
-          )?.uuid || ej.exercise_id; // fallback
+          )?.uuid || ej.exercise_id;
 
-          if (ej.advancedMode === 'superset' && ej.supersetExerciseId) {
-            const groupId = uuidv4();
-            const supId = ejercicioIdMap[ej.supersetExerciseId];
-            if (!supId) {
-              throw new Error(`Superset Exercise UUID ${ej.supersetExerciseId} not found in DB`);
-            }
-            const supUuid = exerciseRecords.find(
-              rec => String(rec.id) === String(supId)
-            )?.uuid || ej.supersetExerciseId;
-
-            // Inserción para el ejercicio principal
-            inserts.push({
-              routine_id: rutina.id,
-              exercise_id: mainId,
-              exercise_uuid: mainUuid, // <-- Guardar UUID real
-              position: idx * 2,
-              sets: ej.sets.length,
-              reps: ej.sets[0].reps,
-              peso_inicial: ej.sets[0].weight,
-              descanso: ej.sets[0].rest,
-              advanced_mode: 'superset',
-              superset_group_id: groupId,
-              superset_exercise_id: supId,      // ID entero del paired
-              // superset_exercise_uuid no existe en tu schema, ignoramos
-              set_data: JSON.stringify(ej.sets),
-              notas: ej.notas || ''
-            });
-
-            // Inserción para el ejercicio paired
-            inserts.push({
-              routine_id: rutina.id,
-              exercise_id: supId,
-              exercise_uuid: supUuid,
-              position: idx * 2 + 1,
-              sets: ej.supersetExercise.sets.length,
-              reps: ej.supersetExercise.sets[0].reps,
-              peso_inicial: ej.supersetExercise.sets[0].weight,
-              descanso: ej.supersetExercise.sets[0].rest,
-              advanced_mode: 'superset',
-              superset_group_id: groupId,
-              superset_exercise_id: null, // no hay un "tercer" ejercicio
-              set_data: JSON.stringify(ej.supersetExercise.sets),
-              notas: ''
-            });
-          } else {
-            // Ejercicio normal
-            inserts.push({
-              routine_id: rutina.id,
-              exercise_id: mainId,
-              exercise_uuid: mainUuid,
-              position: idx * 2,
-              sets: ej.sets.length,
-              reps: ej.sets[0].reps,
-              peso_inicial: ej.sets[0].weight,
-              descanso: ej.sets[0].rest,
-              advanced_mode: ej.advancedMode,
-              superset_group_id: null,
-              superset_exercise_id: null,
-              set_data: JSON.stringify(ej.sets),
-              notas: ej.notas || ''
-            });
+          // Compatibilidad: aceptar tanto supersetExerciseId como superset_exercise_id
+          let supersetExerciseIdInt = null;
+          const supersetIdRaw = ej.supersetExerciseId || ej.superset_exercise_id;
+          if (supersetIdRaw) {
+            supersetExerciseIdInt = ejercicioIdMap[supersetIdRaw] || null;
           }
-        });
 
-        // 4) Insertar en routine_exercises
+          // Validación defensiva para sets
+          if (!Array.isArray(ej.sets) || ej.sets.length === 0) {
+            console.warn('[Rutina] Ejercicio sin sets válido:', ej);
+            return; // Saltar este ejercicio malformado (NO detiene el forEach, pero no agrega el insert)
+          }
+
+          // Validar que ej.sets[0] existe
+          const firstSet = ej.sets[0];
+          if (!firstSet) {
+            console.warn('[Rutina] Ejercicio con sets vacío:', ej);
+            return;
+          }
+
+          inserts.push({
+            routine_id: rutina.id,
+            exercise_id: mainId,
+            exercise_uuid: mainUuid,
+            position: idx,
+            sets: ej.sets.length,
+            reps: ej.sets[0].reps,
+            peso_inicial: ej.sets[0].weight,
+            descanso: ej.sets[0].rest,
+            advanced_mode: ej.advancedMode,
+            superset_group_id: ej.superset_group_id || null,
+            superset_exercise_id: supersetExerciseIdInt,
+            set_data: JSON.stringify(ej.sets),
+            notas: ej.notas || ''
+          });
+        });
         const { error } = await supabase.from('routine_exercises').insert(inserts);
         if (error) throw error;
       }
@@ -294,65 +262,27 @@ export const useTrainingStore = defineStore('training', () => {
             rec => String(rec.id) === String(mainId)
           )?.uuid || ej.exercise_id;
 
-          if (ej.advancedMode === 'superset' && ej.supersetExerciseId) {
-            const groupId = uuidv4();
-            const supId = ejercicioIdMap[ej.supersetExerciseId];
-            if (!supId) throw new Error(`Superset Exercise UUID ${ej.supersetExerciseId} not found`);
-            const supUuid = exerciseRecords.find(
-              rec => String(rec.id) === String(supId)
-            )?.uuid || ej.supersetExerciseId;
-
-            // principal
-            inserts.push({
-              routine_id: id,
-              exercise_id: mainId,
-              exercise_uuid: mainUuid,
-              position: idx * 2,
-              sets: ej.sets.length,
-              reps: ej.sets[0].reps,
-              peso_inicial: ej.sets[0].weight,
-              descanso: ej.sets[0].rest,
-              advanced_mode: 'superset',
-              superset_group_id: groupId,
-              superset_exercise_id: supId,
-              set_data: JSON.stringify(ej.sets),
-              notas: ej.notas || ''
-            });
-
-            // paired
-            inserts.push({
-              routine_id: id,
-              exercise_id: supId,
-              exercise_uuid: supUuid,
-              position: idx * 2 + 1,
-              sets: ej.supersetExercise.sets.length,
-              reps: ej.supersetExercise.sets[0].reps,
-              peso_inicial: ej.supersetExercise.sets[0].weight,
-              descanso: ej.supersetExercise.sets[0].rest,
-              advanced_mode: 'superset',
-              superset_group_id: groupId,
-              superset_exercise_id: null,
-              set_data: JSON.stringify(ej.supersetExercise.sets),
-              notas: ''
-            });
-          } else {
-            // ejercicio normal
-            inserts.push({
-              routine_id: id,
-              exercise_id: mainId,
-              exercise_uuid: mainUuid,
-              position: idx * 2,
-              sets: ej.sets.length,
-              reps: ej.sets[0].reps,
-              peso_inicial: ej.sets[0].weight,
-              descanso: ej.sets[0].rest,
-              advanced_mode: ej.advancedMode,
-              superset_group_id: null,
-              superset_exercise_id: null,
-              set_data: JSON.stringify(ej.sets),
-              notas: ej.notas || ''
-            });
+          // Si es superserie, mapea el superset_exercise_id a entero (o null)
+          let supersetExerciseIdInt = null;
+          if (ej.supersetExerciseId) {
+            supersetExerciseIdInt = ejercicioIdMap[ej.supersetExerciseId] || null;
           }
+
+          inserts.push({
+            routine_id: id,
+            exercise_id: mainId,
+            exercise_uuid: mainUuid,
+            position: idx,
+            sets: ej.sets.length,
+            reps: ej.sets[0].reps,
+            peso_inicial: ej.sets[0].weight,
+            descanso: ej.sets[0].rest,
+            advanced_mode: ej.advancedMode,
+            superset_group_id: ej.superset_group_id || null,
+            superset_exercise_id: supersetExerciseIdInt,
+            set_data: JSON.stringify(ej.sets),
+            notas: ej.notas || ''
+          });
         });
         const { error } = await supabase.from('routine_exercises').insert(inserts);
         if (error) throw error;
@@ -380,36 +310,6 @@ export const useTrainingStore = defineStore('training', () => {
     }
   }
 
-  async function clearAllMesociclos() {
-    try {
-      isLoading.value = true;
-      error.value = null;
-      const { error: err } = await supabase.from('mesociclos').delete();
-      if (err) throw err;
-      await fetchMesociclos();
-    } catch (err) {
-      console.error('Error clearing mesociclos:', err);
-      toast.error('Error al borrar mesociclos');
-    } finally {
-      isLoading.value = false;
-    }
-  }
-
-  async function clearAllRutinas() {
-    try {
-      isLoading.value = true;
-      error.value = null;
-      const { error: err } = await supabase.from('rutinas').delete();
-      if (err) throw err;
-      await fetchMesociclos();
-    } catch (err) {
-      console.error('Error clearing rutinas:', err);
-      toast.error('Error al borrar rutinas');
-    } finally {
-      isLoading.value = false;
-    }
-  }
-
   return {
     mesociclos,
     isLoading,
@@ -422,9 +322,7 @@ export const useTrainingStore = defineStore('training', () => {
     deleteMesociclo,
     createRutina,
     updateRutina,
-    deleteRutina,
-    clearAllMesociclos,
-    clearAllRutinas
+    deleteRutina
   };
 }, {
   persist: false

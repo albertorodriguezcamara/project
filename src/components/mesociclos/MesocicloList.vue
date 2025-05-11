@@ -20,30 +20,28 @@
         @dragenter.prevent
         @drop="handleDrop($event, mesociclo)"
       >
-        <div class="flex items-center justify-between">
-          <div class="flex items-center space-x-4">
-            <button class="drag-handle p-1.5 text-gray-400 hover:text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
-              <GripVertical class="w-5 h-5" />
-            </button>
-            <div>
-              <h3 class="text-xl font-bold text-gray-900">{{ mesociclo.name }}</h3>
-              <div class="flex items-center gap-2 mt-2">
-                <span
-                  v-if="mesociclo.active"
-                  class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 border border-emerald-200"
-                >
-                  Activo
-                </span>
-                <span
-                  v-if="mesociclo.completed"
-                  class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200"
-                >
-                  Completado
-                </span>
-              </div>
+        <!-- Cabecera del mesociclo con diseño mejorado -->
+        <div class="flex flex-col">
+          <div>
+            <h3 class="text-xl font-bold text-gray-900 break-words mb-2">{{ mesociclo.name }}</h3>
+            <div class="flex flex-wrap items-center gap-2 mt-1">
+              <span
+                v-if="mesociclo.active"
+                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 border border-emerald-200"
+              >
+                Activo
+              </span>
+              <span
+                v-if="mesociclo.completed"
+                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200"
+              >
+                Completado
+              </span>
             </div>
           </div>
-          <div class="flex items-center space-x-3">
+          
+          <!-- Botones de acción debajo del nombre -->
+          <div class="flex items-center space-x-3 mt-3">
             <button
               @click="toggleActive(mesociclo)"
               class="p-2 rounded-lg transition-colors shadow-sm"

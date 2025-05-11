@@ -39,16 +39,11 @@
     <template v-else>
       <!-- Current Mesocycle Status -->
       <div class="card p-6 shadow-lg rounded-2xl" :class="isMesocicloComplete ? 'bg-gradient-to-br from-amber-500 to-amber-700' : 'bg-teal-700'" :style="isMesocicloComplete ? 'animation: pulse 2s infinite' : ''">
-        <div class="flex items-center justify-between">
-          <div>
-            <h2 class="text-2xl font-bold mb-2 text-white">{{ activeMesociclo.name }}</h2>
-            <p class="text-lg text-emerald-100">
-              Mesociclo {{ activeMesociclo.order }} de {{ trainingStore.mesociclos.length }}
-            </p>
-          </div>
-          <div class="w-20 h-20 bg-white/10 rounded-xl flex items-center justify-center shadow-md">
-            <component :is="isMesocicloComplete ? 'Award' : 'Activity'" class="w-10 h-10 text-white" />
-          </div>
+        <div>
+          <h2 class="text-2xl font-bold mb-2 text-white">{{ activeMesociclo.name }}</h2>
+          <p class="text-lg text-emerald-100">
+            Mesociclo {{ activeMesociclo.order }} de {{ trainingStore.mesociclos.length }}
+          </p>
         </div>
         
         <!-- Festive Message when Mesocycle is 100% complete -->

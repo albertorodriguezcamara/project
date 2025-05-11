@@ -96,8 +96,13 @@
             <!-- Exercise Header - Clickable to expand/collapse -->
             <div 
               @click="toggleExerciseExpanded(ejercicio.ejercicio_id || ejercicio.groupId)"
-              class="flex flex-col md:flex-row md:items-center gap-4 p-4 bg-gray-50 border-b border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
+              class="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 bg-gray-50 border-b border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors relative"
             >
+              <!-- Expand/Collapse Indicator - Ahora más grande y en la parte superior -->
+              <div class="absolute right-5 top-4 bg-blue-100 rounded-full p-3 shadow-sm">
+                <ChevronDown v-if="!isExerciseExpanded(ejercicio.ejercicio_id || ejercicio.groupId)" class="w-6 h-6 text-blue-600" />
+                <ChevronUp v-else class="w-6 h-6 text-blue-600" />
+              </div>
               <!-- First Exercise -->
               <div class="flex flex-1 flex-col md:flex-row md:items-center gap-4">
                 <!-- Exercise GIF -->
@@ -105,9 +110,9 @@
                   <template v-if="ejercicio.exercise?.gif_url_supabase">
                     <img :src="ejercicio.exercise.gif_url_supabase" :alt="ejercicio.exercise?.name_es || 'GIF ejercicio'" class="object-cover w-full h-full" />
                   </template>
-                  <div v-else class="flex flex-col items-center justify-center h-full w-full">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" class="text-gray-400 mb-1">
-                      <circle cx="16" cy="16" r="14"/>
+                  <div v-else class="w-full h-full flex flex-col items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       <path d="M8 16h8l4 4"/>
                     </svg>
                     <span class="text-gray-400 text-xs">Sin imagen</span>
@@ -119,16 +124,10 @@
                     <h3 class="text-lg font-bold text-gray-900">
                       {{ ejercicio.exercise?.name_es || ejercicio.name_es }}
                     </h3>
-                    <div
-                      class="ml-2 p-1 rounded-full hover:bg-gray-200"
-                      @click.stop
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 transform transition-transform" :class="{'rotate-180': isExerciseExpanded(ejercicio.ejercicio_id || ejercicio.groupId)}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                      </svg>
+                    <div class="flex items-center gap-2">
+                      <span v-if="ejercicio.isCompleted" class="bg-emerald-100 text-emerald-800 px-2 py-1 rounded font-semibold">Completado</span>
+                      <span v-if="ejercicio.isSuperset" class="bg-red-50 text-red-800 px-2 py-1 rounded font-semibold">Superserie</span>
                     </div>
-                  </div>
-                  <div class="flex flex-wrap gap-2 text-sm text-gray-700 mb-1">
                     <span v-if="ejercicio.exercise?.bodyPart_es" class="bg-blue-50 text-blue-800 px-2 py-1 rounded">{{ ejercicio.exercise.bodyPart_es }}</span>
                     <span v-if="ejercicio.exercise?.equipment_es" class="bg-purple-50 text-purple-800 px-2 py-1 rounded">{{ ejercicio.exercise.equipment_es }}</span>
                     <span v-if="ejercicio.isSuperset" class="bg-red-50 text-red-800 px-2 py-1 rounded font-semibold">Superserie</span>
@@ -199,36 +198,56 @@
               
               <!-- First Exercise Sets Table -->
               <div v-if="ejercicio.sets.length > 0" class="mb-6">
-                <h4 class="font-medium text-gray-800 mb-2">
+                <h4 class="font-medium text-gray-800 mb-4">
                   Series de {{ ejercicio.exercise?.name_es || ejercicio.name_es }}
                 </h4>
-                <div class="grid grid-cols-4 gap-2 text-sm font-medium text-gray-500 mb-2">
+                <div class="grid grid-cols-4 gap-2 text-base font-medium text-gray-600 mb-3 px-2">
                   <div>Serie</div>
                   <div>Peso</div>
                   <div>Reps</div>
                   <div>Estado</div>
                 </div>
                 
-                <div class="space-y-2">
+                <div class="space-y-3">
                   <div
                     v-for="(set, setIndex) in ejercicio.sets"
                     :key="setIndex"
-                    class="grid grid-cols-4 gap-2 items-center py-2 rounded-lg transition-colors"
-                    :class="{ 'bg-emerald-50': set.completed }"
+                    class="grid grid-cols-4 gap-3 items-center py-3 px-2 rounded-lg transition-all duration-300"
+                    :class="{
+                      'bg-emerald-50 border border-emerald-100': set.completed && !set.deleteConfirm,
+                      'bg-orange-50 border border-orange-200': set.deleteConfirm,
+                      'opacity-50 transform -translate-x-full': set.deleteAnimation
+                    }"
                   >
-                    <div class="text-sm text-gray-900">
-                      {{ setIndex + 1 }}
+                    <div class="text-base font-medium text-gray-900 flex items-center justify-between bg-gray-100 rounded-lg py-2 px-3 relative">
+                      <span>{{ setIndex + 1 }}</span>
+                      <button 
+                        v-if="ejercicio.sets.length > 1"
+                        @click.stop="confirmDeleteSet(ejercicio, setIndex)"
+                        class="w-6 h-6 flex items-center justify-center rounded-full transition-colors"
+                        :class="{
+                          'text-gray-400 hover:text-gray-600': !set.deleteConfirm,
+                          'text-orange-600 hover:text-orange-700': set.deleteConfirm
+                        }"
+                        title="Eliminar serie"
+                      >
+                        <Trash2 class="w-4 h-4" />
+                      </button>
                     </div>
                     
                     <div>
-                      <input
-                        v-model.number="set.peso"
-                        type="number"
-                        min="0"
-                        step="0.5"
-                        class="w-20 px-2 py-1 text-sm border border-gray-300 rounded-lg"
-                        :disabled="set.completed"
-                      />
+                      <div class="relative">
+                        <input
+                          v-model.number="set.peso"
+                          type="number"
+                          min="0"
+                          step="0.5"
+                          inputmode="decimal"
+                          class="w-full h-12 px-3 py-2 text-lg font-medium border border-gray-300 rounded-lg text-center focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          :disabled="set.completed"
+                        />
+                        <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">kg</span>
+                      </div>
                     </div>
                     
                     <div>
@@ -236,22 +255,22 @@
                         v-model.number="set.repeticiones"
                         type="number"
                         min="0"
-                        class="w-16 px-2 py-1 text-sm border border-gray-300 rounded-lg"
+                        inputmode="numeric"
+                        class="w-full h-12 px-3 py-2 text-lg font-medium border border-gray-300 rounded-lg text-center focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         :disabled="set.completed"
                       />
                     </div>
                     
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center justify-center">
                       <button
                         @click="toggleSetCompletion(ejercicio, setIndex)"
-                        class="p-1.5 rounded-lg"
+                        class="p-3 rounded-lg w-full flex items-center justify-center"
                         :class="set.completed 
-                          ? 'text-red-600 hover:text-red-700 hover:bg-red-50'
-                          : 'text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50'"
-                        :title="set.completed ? 'Desmarcar serie' : 'Completar serie'"
+                          ? 'bg-red-100 text-red-600 hover:bg-red-200'
+                          : 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200'"
                       >
-                        <Check v-if="set.completed" class="w-5 h-5" />
-                        <Timer v-else class="w-5 h-5" />
+                        <Check v-if="set.completed" class="w-6 h-6" />
+                        <Timer v-else class="w-6 h-6" />
                       </button>
                     </div>
                   </div>
@@ -286,33 +305,37 @@
                   Series de {{ ejercicio.pairedExercise.exercise?.name_es || ejercicio.pairedExercise.name_es }}
                 </h4>
                 <div v-if="ejercicio.pairedExercise.sets.length > 0">
-                  <div class="grid grid-cols-4 gap-2 text-sm font-medium text-gray-500 mb-2">
+                  <div class="grid grid-cols-4 gap-2 text-base font-medium text-gray-600 mb-3 px-2">
                     <div>Serie</div>
                     <div>Peso</div>
                     <div>Reps</div>
                     <div>Estado</div>
                   </div>
                   
-                  <div class="space-y-2">
+                  <div class="space-y-3">
                     <div
                       v-for="(set, setIndex) in ejercicio.pairedExercise.sets"
                       :key="setIndex"
-                      class="grid grid-cols-4 gap-2 items-center py-2 rounded-lg transition-colors"
-                      :class="{ 'bg-emerald-50': set.completed }"
+                      class="grid grid-cols-4 gap-3 items-center py-3 px-2 rounded-lg transition-colors"
+                      :class="{ 'bg-emerald-50 border border-emerald-100': set.completed }"
                     >
-                      <div class="text-sm text-gray-900">
+                      <div class="text-base font-medium text-gray-900 flex items-center justify-center bg-gray-100 rounded-lg py-2">
                         {{ setIndex + 1 }}
                       </div>
                       
                       <div>
-                        <input
-                          v-model.number="set.peso"
-                          type="number"
-                          min="0"
-                          step="0.5"
-                          class="w-20 px-2 py-1 text-sm border border-gray-300 rounded-lg"
-                          :disabled="set.completed"
-                        />
+                        <div class="relative">
+                          <input
+                            v-model.number="set.peso"
+                            type="number"
+                            min="0"
+                            step="0.5"
+                            inputmode="decimal"
+                            class="w-full h-12 px-3 py-2 text-lg font-medium border border-gray-300 rounded-lg text-center focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            :disabled="set.completed"
+                          />
+                          <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">kg</span>
+                        </div>
                       </div>
                       
                       <div>
@@ -320,22 +343,22 @@
                           v-model.number="set.repeticiones"
                           type="number"
                           min="0"
-                          class="w-16 px-2 py-1 text-sm border border-gray-300 rounded-lg"
+                          inputmode="numeric"
+                          class="w-full h-12 px-3 py-2 text-lg font-medium border border-gray-300 rounded-lg text-center focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                           :disabled="set.completed"
                         />
                       </div>
                       
-                      <div class="flex items-center gap-2">
+                      <div class="flex items-center justify-center">
                         <button
                           @click="toggleSetCompletion(ejercicio.pairedExercise, setIndex)"
-                          class="p-1.5 rounded-lg"
+                          class="p-3 rounded-lg w-full flex items-center justify-center"
                           :class="set.completed 
-                            ? 'text-red-600 hover:text-red-700 hover:bg-red-50'
-                            : 'text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50'"
-                          :title="set.completed ? 'Desmarcar serie' : 'Completar serie'"
+                            ? 'bg-red-100 text-red-600 hover:bg-red-200'
+                            : 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200'"
                         >
-                          <Check v-if="set.completed" class="w-5 h-5" />
-                          <Timer v-else class="w-5 h-5" />
+                          <Check v-if="set.completed" class="w-6 h-6" />
+                          <Timer v-else class="w-6 h-6" />
                         </button>
                       </div>
                     </div>
@@ -400,7 +423,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { Pause, Play, X, Plus, Check, Timer, Calendar, Clock } from 'lucide-vue-next';
+import { Pause, Play, X, Plus, Check, Timer, Calendar, Clock, ChevronDown, ChevronUp, Trash2 } from 'lucide-vue-next';
 import { useWorkoutLogsStore } from '@/stores/workoutLogs';
 import { useActiveWorkoutStore } from '@/stores/activeWorkout';
 import { useExerciseLibraryStore } from '@/stores/exerciseLibrary';
@@ -413,6 +436,8 @@ interface SetData {
   peso: number;
   repeticiones: number;
   completed: boolean;
+  deleteConfirm?: boolean;
+  deleteAnimation?: boolean;
 }
 
 interface LocalExercise {
@@ -690,6 +715,53 @@ function toggleSetCompletion(ejercicio: LocalExercise, setIndex: number) {
       paired_sets: paired ? printSets(paired.sets) : []
     });
   }
+}
+
+function confirmDeleteSet(ejercicio: LocalExercise, setIndex: number) {
+  // No permitir eliminar la última serie
+  if (ejercicio.sets.length <= 1) {
+    return;
+  }
+  
+  const set = ejercicio.sets[setIndex];
+  
+  // Si ya está en modo confirmación, eliminar la serie con animación
+  if (set.deleteConfirm) {
+    set.deleteAnimation = true;
+    
+    // Esperar a que termine la animación antes de eliminar
+    setTimeout(() => {
+      removeSet(ejercicio, setIndex);
+    }, 300); // Duración de la animación
+  } else {
+    // Activar el modo confirmación
+    set.deleteConfirm = true;
+    
+    // Desactivar automáticamente después de 3 segundos
+    setTimeout(() => {
+      if (set && ejercicio.sets.includes(set)) {
+        set.deleteConfirm = false;
+      }
+    }, 3000);
+  }
+}
+
+function removeSet(ejercicio: LocalExercise, setIndex: number) {
+  // No permitir eliminar la última serie
+  if (ejercicio.sets.length <= 1) {
+    return;
+  }
+  
+  // Eliminar la serie en el índice especificado
+  ejercicio.sets.splice(setIndex, 1);
+}
+
+function removeSetFromPaired(ejercicio: LocalExercise, setIndex: number) {
+  if (!ejercicio.pairedExercise || ejercicio.pairedExercise.sets.length <= 1) {
+    return;
+  }
+  
+  ejercicio.pairedExercise.sets.splice(setIndex, 1);
 }
 
 //----------------------------------

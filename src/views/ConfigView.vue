@@ -1,55 +1,55 @@
 <template>
   <div class="min-h-screen bg-gray-50">
     <!-- Hero Section -->
-    <div class="bg-gradient-to-br from-blue-500 to-blue-700 -mx-4 px-4 py-8 md:rounded-2xl md:mx-0 text-white mb-6">
+    <div class="bg-gradient-to-br from-emerald-600 to-emerald-800 -mx-4 px-6 py-12 md:rounded-3xl md:mx-0 text-white shadow-xl transition-all duration-300 mb-8">
       <div class="max-w-xl">
-        <h1 class="text-3xl font-bold mb-2">Configuración</h1>
-        <p class="text-blue-100">Personaliza tu experiencia de entrenamiento</p>
+        <h1 class="text-3xl font-bold mb-3">Configuración</h1>
+        <p class="text-lg text-emerald-100">Personaliza tu experiencia de entrenamiento</p>
       </div>
     </div>
 
-    <div class="max-w-7xl mx-auto">
-      <div class="grid grid-cols-12 gap-6">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="grid grid-cols-12 gap-8">
         <!-- Sidebar Navigation -->
         <div class="col-span-12 lg:col-span-3">
-          <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden sticky top-6">
-            <nav class="flex flex-col divide-y divide-gray-200">
+          <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden sticky top-6">
+            <nav class="flex flex-col">
               <button
                 v-for="section in configSections"
                 :key="section.id"
                 @click="activeSection = section.id"
-                class="flex items-center gap-3 p-4 text-left transition-colors"
+                class="flex items-center gap-3 p-5 text-left transition-colors border-l-4"
                 :class="[
                   activeSection === section.id 
-                    ? 'bg-blue-50 text-blue-700' 
-                    : 'text-gray-700 hover:bg-gray-50'
+                    ? 'bg-emerald-50 text-emerald-700 border-l-emerald-500' 
+                    : 'text-gray-700 hover:bg-gray-50 border-l-transparent'
                 ]"
               >
                 <component :is="section.icon" class="w-5 h-5" />
-                <span class="font-medium">{{ section.name }}</span>
+                <span class="font-semibold">{{ section.name }}</span>
               </button>
             </nav>
           </div>
         </div>
 
         <!-- Main Content -->
-        <div class="col-span-12 lg:col-span-9 space-y-6">
+        <div class="col-span-12 lg:col-span-9 space-y-8">
           <!-- Training Settings -->
-          <div v-show="activeSection === 'training'" class="space-y-6">
+          <div v-show="activeSection === 'training'" class="space-y-8">
             <!-- Mesocycles Management -->
-            <div class="card">
-              <div class="flex items-center justify-between mb-6">
+            <div class="card p-6 rounded-xl shadow-md border border-gray-200">
+              <div class="flex items-center justify-between mb-8">
                 <div>
-                  <h2 class="text-lg font-bold text-gray-900">Mesociclos</h2>
-                  <p class="text-sm text-gray-500 mt-1">
+                  <h2 class="text-2xl font-bold text-gray-900">Mesociclos</h2>
+                  <p class="text-base text-gray-600 mt-2">
                     Gestiona tus ciclos de entrenamiento
                   </p>
                 </div>
                 <button 
-                  class="btn-primary"
+                  class="bg-emerald-600 hover:bg-emerald-700 text-white py-3 px-5 rounded-xl font-medium text-sm shadow-md flex items-center transition-colors duration-200"
                   @click="showMesocicloForm = true"
                 >
-                  <Plus class="w-4 h-4 mr-2" />
+                  <Plus class="w-5 h-5 mr-2" />
                   Nuevo Mesociclo
                 </button>
               </div>
@@ -62,6 +62,11 @@
                 @edit-rutina="editRutina"
               />
             </div>
+          </div>
+
+          <!-- Advanced Settings -->
+          <div v-show="activeSection === 'settings'">
+            <SettingsView />
           </div>
         </div>
       </div>
@@ -110,6 +115,7 @@ import type { Mesociclo, Rutina } from '@/types';
 import MesocicloList from '@/components/mesociclos/MesocicloList.vue';
 import MesocicloForm from '@/components/mesociclos/MesocicloForm.vue';
 import RutinaForm from '@/components/rutinas/RutinaForm.vue';
+import SettingsView from '@/views/SettingsView.vue';
 import { toast } from 'vue3-toastify';
 
 const router = useRouter();

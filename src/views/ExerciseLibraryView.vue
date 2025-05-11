@@ -1,48 +1,47 @@
-```vue
 <template>
-  <div class="space-y-6">
+  <div class="space-y-12">
     <!-- Hero Section -->
-    <div class="bg-gradient-to-br from-blue-500 to-blue-700 -mx-4 px-4 py-8 md:rounded-2xl md:mx-0 text-white">
+    <div class="bg-gradient-to-br from-emerald-600 to-emerald-800 -mx-4 px-6 py-12 md:rounded-3xl md:mx-0 text-white shadow-xl transition-all duration-300">
       <div class="max-w-xl">
-        <h1 class="text-3xl font-bold mb-2">Biblioteca de Ejercicios</h1>
-        <p class="text-blue-100">{{ filteredExercises.length }} ejercicios disponibles</p>
+        <h1 class="text-3xl font-bold mb-3">Biblioteca de Ejercicios</h1>
+        <p class="text-lg text-emerald-100">{{ filteredExercises.length }} ejercicios disponibles</p>
       </div>
     </div>
 
     <!-- Search and Filters -->
-    <div class="card">
-      <div class="flex flex-col md:flex-row gap-4 mb-6">
+    <div class="card p-6 shadow-md rounded-2xl">
+      <div class="flex flex-col md:flex-row gap-5 mb-8">
         <!-- Search -->
         <div class="flex-1 relative">
-          <Search class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <Search class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-6 h-6" />
           <input
             v-model="searchQuery"
             type="text"
             placeholder="Buscar ejercicios..."
-            class="input-field pl-10"
+            class="w-full py-3 px-12 text-base border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
           />
         </div>
 
         <!-- Filter Toggles -->
-        <div class="flex gap-2">
+        <div class="flex gap-3">
           <button
             @click="showMuscleFilter = !showMuscleFilter"
-            class="btn-secondary text-sm"
+            class="flex items-center justify-center px-5 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-xl transition-all text-base"
           >
-            <Filter class="w-4 h-4 mr-1" />
+            <Filter class="w-5 h-5 mr-2" />
             Músculos
-            <span v-if="selectedMuscles.length" class="ml-1 px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs">
+            <span v-if="selectedMuscles.length" class="ml-2 px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full text-sm font-bold">
               {{ selectedMuscles.length }}
             </span>
           </button>
 
           <button
             @click="showEquipmentFilter = !showEquipmentFilter"
-            class="btn-secondary text-sm"
+            class="flex items-center justify-center px-5 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-xl transition-all text-base"
           >
-            <Dumbbell class="w-4 h-4 mr-1" />
+            <Dumbbell class="w-5 h-5 mr-2" />
             Equipamiento
-            <span v-if="selectedEquipment" class="ml-1 px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs">
+            <span v-if="selectedEquipment" class="ml-2 px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full text-sm font-bold">
               1
             </span>
           </button>
@@ -50,18 +49,18 @@
       </div>
 
       <!-- Muscle Groups Filter -->
-      <div v-if="showMuscleFilter" class="mb-6 animate-scale-in">
-        <h3 class="text-sm font-medium text-gray-700 mb-3">Grupos Musculares</h3>
-        <div class="flex flex-wrap gap-2">
+      <div v-if="showMuscleFilter" class="mb-8 animate-scale-in bg-gray-50 p-5 rounded-xl border border-gray-100">
+        <h3 class="text-lg font-medium text-gray-800 mb-4">Grupos Musculares</h3>
+        <div class="flex flex-wrap gap-3">
           <button
             v-for="muscle in muscleGroups"
             :key="muscle"
             @click="toggleMuscleFilter(muscle)"
-            class="px-3 py-1.5 rounded-full text-sm transition-colors"
+            class="px-4 py-2 rounded-xl text-base font-medium transition-colors"
             :class="[
               selectedMuscles.includes(muscle)
-                ? 'bg-blue-100 text-blue-800 hover:bg-blue-200'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'
             ]"
           >
             {{ muscle }}
@@ -70,60 +69,60 @@
       </div>
 
       <!-- Equipment Filter -->
-      <div v-if="showEquipmentFilter" class="mb-6 animate-scale-in">
-        <h3 class="text-sm font-medium text-gray-700 mb-3">Equipamiento</h3>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div v-if="showEquipmentFilter" class="mb-8 animate-scale-in bg-gray-50 p-5 rounded-xl border border-gray-100">
+        <h3 class="text-lg font-medium text-gray-800 mb-4">Equipamiento</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
           <button
             v-for="equipment in equipmentTypes"
             :key="equipment"
             @click="toggleEquipmentFilter(equipment)"
-            class="px-4 py-2 rounded-lg text-sm text-left transition-colors flex items-center"
+            class="px-5 py-3 rounded-xl text-base font-medium text-left transition-colors flex items-center shadow-sm"
             :class="[
               selectedEquipment === equipment
-                ? 'bg-blue-100 text-blue-800'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'bg-emerald-100 text-emerald-700 border border-emerald-200'
+                : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'
             ]"
           >
             <span class="flex-1">{{ translateEquipment(equipment) }}</span>
-            <Check v-if="selectedEquipment === equipment" class="w-4 h-4" />
+            <Check v-if="selectedEquipment === equipment" class="w-5 h-5 text-emerald-600" />
           </button>
         </div>
       </div>
 
       <!-- Active Filters -->
-      <div v-if="hasActiveFilters" class="flex items-center justify-between">
-        <div class="flex flex-wrap gap-2">
+      <div v-if="hasActiveFilters" class="flex flex-col md:flex-row items-start md:items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-200 mb-4">
+        <div class="flex flex-wrap gap-3 mb-3 md:mb-0">
           <span
             v-for="muscle in selectedMuscles"
             :key="muscle"
-            class="inline-flex items-center px-2 py-1 rounded-md bg-blue-50 text-blue-700 text-sm"
+            class="inline-flex items-center px-3 py-2 rounded-xl bg-emerald-50 text-emerald-700 text-base font-medium border border-emerald-100"
           >
             {{ muscle }}
             <button
               @click="toggleMuscleFilter(muscle)"
-              class="ml-1 text-blue-500 hover:text-blue-700"
+              class="ml-2 text-emerald-500 hover:text-emerald-700 transition-colors"
             >
-              <X class="w-4 h-4" />
+              <X class="w-5 h-5" />
             </button>
           </span>
 
           <span
             v-if="selectedEquipment"
-            class="inline-flex items-center px-2 py-1 rounded-md bg-blue-50 text-blue-700 text-sm"
+            class="inline-flex items-center px-3 py-2 rounded-xl bg-emerald-50 text-emerald-700 text-base font-medium border border-emerald-100"
           >
             {{ translateEquipment(selectedEquipment) }}
             <button
-              @click="selectedEquipment = ''"
-              class="ml-1 text-blue-500 hover:text-blue-700"
+              @click="toggleEquipmentFilter(selectedEquipment)"
+              class="ml-2 text-emerald-500 hover:text-emerald-700 transition-colors"
             >
-              <X class="w-4 h-4" />
+              <X class="w-5 h-5" />
             </button>
           </span>
         </div>
 
         <button
           @click="clearFilters"
-          class="text-sm text-gray-500 hover:text-gray-700"
+          class="text-base font-medium text-gray-600 hover:text-gray-800 px-4 py-2 bg-white rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors"
         >
           Limpiar filtros
         </button>
@@ -131,26 +130,26 @@
     </div>
 
     <!-- Exercise Grid -->
-    <div v-if="isLoading" class="flex justify-center py-12">
-      <LoadingSpinner size="large" />
+    <div v-if="isLoading" class="flex justify-center py-16">
+      <LoadingSpinner size="large" class="w-16 h-16 text-emerald-600" />
     </div>
 
-    <div v-else-if="filteredExercises.length === 0" class="text-center py-12 bg-gray-50 rounded-lg border border-gray-200">
-      <p class="text-gray-600">No se encontraron ejercicios que coincidan con los filtros.</p>
-      <button @click="clearFilters" class="mt-2 text-blue-600 hover:text-blue-800">
+    <div v-else-if="filteredExercises.length === 0" class="text-center py-16 bg-gray-50 rounded-2xl border border-gray-200 shadow-md">
+      <p class="text-gray-700 text-lg mb-4">No se encontraron ejercicios que coincidan con los filtros.</p>
+      <button @click="clearFilters" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-base font-medium transition-colors">
         Limpiar filtros
       </button>
     </div>
 
-    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div v-else class="space-y-3 md:space-y-4 px-1 sm:px-2">
       <div
         v-for="exercise in lazyLoadedExercises"
         :key="exercise.id"
-        class="card hover:scale-[1.02] cursor-pointer"
+        class="flex items-center p-3 bg-white rounded-xl shadow-lg hover:shadow-xl border border-gray-100 transition-all duration-200 hover:bg-gray-50 cursor-pointer"
         @click="showExerciseDetails(exercise)"
       >
         <!-- Exercise Image -->
-        <div class="aspect-video bg-gray-100 rounded-lg overflow-hidden mb-4">
+        <div class="w-20 h-20 sm:w-24 sm:h-24 bg-gray-50 rounded-lg overflow-hidden mr-3 sm:mr-4 flex-shrink-0">
           <template v-if="exercise.gif_url_supabase">
             <div class="relative group w-full h-full">
               <img
@@ -178,10 +177,10 @@
               @error="handleImageError"
             />
           </template>
-          <div v-else class="flex flex-col items-center justify-center h-full py-6">
-            <Dumbbell class="w-12 h-12 text-gray-400 mb-2" />
-            <span class="text-gray-500 text-sm">Sin imagen</span>
-            <pre style="font-size:10px;max-width:100%;overflow-x:auto;background:#f3f3f3;color:#333;margin-top:4px;padding:2px 4px;">
+          <div v-else class="flex flex-col items-center justify-center h-full w-full bg-gray-50">
+            <Dumbbell class="w-8 h-8 text-emerald-300 mb-1" />
+            <span class="text-gray-500 text-xs font-medium">Sin imagen</span>
+            <!-- <pre style="font-size:8px;max-width:100%;overflow-x:auto;background:#f3f3f3;color:#333;margin-top:2px;padding:1px 2px;">
               {{ JSON.stringify({
                 gif_url_supabase: exercise.gif_url_supabase,
                 gifUrl: exercise.gifUrl,
@@ -192,37 +191,36 @@
                 name: exercise.name,
                 name_es: exercise.name_es
               }, null, 2) }}
-            </pre>
+            </pre> -->
           </div>
         </div>
 
         <!-- Exercise Info -->
-        <div>
-          <div class="flex justify-between items-start mb-2">
-            <h3 class="font-bold text-gray-900">{{ capitalize(exercise.name_es || exercise.name || exercise.name_english) }}</h3>
-            <span
-              class="text-xs px-2 py-1 rounded-full"
-              :class="{
-                'bg-green-100 text-green-800': exercise.difficulty_level === 'principiante',
-                'bg-yellow-100 text-yellow-800': exercise.difficulty_level === 'intermedio',
-                'bg-red-100 text-red-800': exercise.difficulty_level === 'avanzado'
-              }"
-            >
-              {{ exercise.difficulty_level }}
-            </span>
+        <div class="flex-grow min-w-0">
+          <div class="flex justify-between items-start mb-1">
+            <h3 class="font-bold text-gray-900 text-base truncate">{{ capitalize(exercise.name_es || exercise.name || exercise.name_english) }}</h3>
           </div>
 
-          <p v-if="exercise.name_english" class="text-sm text-gray-500 mb-3">
-            {{ exercise.name_english }}
-          </p>
-
-          <div class="flex flex-wrap gap-1">
+          <div class="flex flex-wrap items-center gap-1.5 mt-1.5">
+            <!-- Main Muscle Tag -->
             <span
-              v-for="muscle in [exercise.muscle, ...(exercise.secondaryMuscles || [])]"
-              :key="muscle"
-              class="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full"
+              class="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-md font-medium border border-blue-100"
             >
-              {{ muscle }}
+              {{ capitalize(exercise.target_es) || 'Músculo' }}
+            </span>
+            <!-- Equipment Tag -->
+            <span
+              class="text-xs bg-gray-100 text-gray-700 px-2 py-0.5 rounded-md font-medium border border-gray-200"
+            >
+              {{ translateEquipment(exercise.equipment_es) || 'Sin equipamiento' }}
+            </span>
+            <!-- Other Primary Muscles Tags -->
+            <span
+              v-for="muscle in (exercise.primaryMuscles || []).filter(m => m.toLowerCase() !== (exercise.target_es || '').toLowerCase())"
+              :key="muscle"
+              class="text-xs bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-md font-medium border border-emerald-100"
+            >
+              {{ capitalize(muscle) }}
             </span>
           </div>
         </div>
@@ -237,15 +235,15 @@
     >
       <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto border border-gray-100 animate-scale-in">
         <!-- Header -->
-        <div class="sticky top-0 z-10 bg-gradient-to-r from-blue-50 to-blue-100 border-b border-gray-100 p-5 flex justify-between items-center">
+        <div class="sticky top-0 z-10 bg-gradient-to-r from-emerald-600 to-emerald-800 p-6 flex justify-between items-center shadow-md">
           <div class="flex items-center">
-            <div class="bg-blue-600 text-white p-2 rounded-lg mr-3">
-              <Dumbbell class="w-6 h-6" />
+            <div class="bg-white text-emerald-700 p-3 rounded-xl mr-4 shadow-md">
+              <Dumbbell class="w-7 h-7" />
             </div>
-            <h2 class="text-xl font-bold text-gray-900">{{ capitalize(selectedExercise.name_es) || selectedExercise.name || 'Ejercicio' }}</h2>
+            <h2 class="text-2xl font-bold text-white">{{ capitalize(selectedExercise.name_es) || selectedExercise.name || 'Ejercicio' }}</h2>
           </div>
-          <button @click="closeExerciseDetails" class="p-2 rounded-full hover:bg-white/50 active:scale-95 transition-all" aria-label="Cerrar">
-            <X class="w-6 h-6 text-gray-500" />
+          <button @click="closeExerciseDetails" class="p-2 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 transition-all" aria-label="Cerrar">
+            <X class="w-7 h-7 text-white" />
           </button>
         </div>
 
@@ -601,4 +599,3 @@ onMounted(async () => {
   window.addEventListener('scroll', handleScroll);
 });
 </script>
-```

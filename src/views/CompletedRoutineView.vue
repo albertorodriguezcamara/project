@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-5xl mx-auto pb-16">
+  <div class="h-full w-full bg-gray-50">
     <!-- Estado de carga -->
     <div v-if="!routineData" class="flex items-center justify-center h-screen">
       <div class="flex flex-col items-center">
@@ -11,28 +11,28 @@
     <!-- Contenido principal -->
     <div v-else class="flex flex-col h-full">
       <!-- Encabezado fijo -->
-      <header class="sticky top-0 z-20 bg-white border-b border-gray-200 shadow-sm">
-        <div class="flex items-center justify-between px-4 py-3">
+      <header class="sticky top-0 z-20 bg-white shadow-sm">
+        <div class="flex items-center justify-between px-4 py-4">
           <div class="flex items-center gap-3">
-            <router-link :to="{ name: 'history' }" class="p-2 rounded-full hover:bg-gray-100 transition-colors">
-              <ArrowLeft class="w-5 h-5 text-gray-500" />
+            <router-link :to="{ name: 'history' }" class="p-2 rounded-full hover:bg-gray-100 active:bg-gray-200 transition-colors">
+              <ArrowLeft class="w-5 h-5 text-gray-600" />
             </router-link>
             <div class="truncate">
               <h1 class="text-lg font-bold text-gray-900 truncate">{{ routineData.rutinaName }}</h1>
               <p class="text-xs text-gray-500 truncate">{{ routineData.mesocicloName }} · {{ routineData.date }}</p>
             </div>
           </div>
-          <span class="bg-emerald-100 text-emerald-800 text-xs px-2 py-1 rounded-full font-medium whitespace-nowrap">
+          <span class="bg-emerald-100 text-emerald-800 text-xs px-3 py-1.5 rounded-full font-medium whitespace-nowrap">
             Completado
           </span>
         </div>
         
-        <!-- Sistema de pestañas -->
-        <div class="px-1">
+        <!-- Sistema de pestañas mejorado para móvil -->
+        <div class="px-1 border-t border-gray-200">
           <nav class="flex overflow-x-auto hide-scrollbar" aria-label="Tabs">
             <button 
               @click="activeTab = 'summary'" 
-              class="flex-1 py-3 relative flex flex-col items-center text-xs font-medium whitespace-nowrap"
+              class="flex-1 py-4 relative flex flex-col items-center text-xs font-semibold whitespace-nowrap transition-colors"
               :class="activeTab === 'summary' ? 'text-emerald-600' : 'text-gray-500'"
             >
               <div class="flex items-center justify-center mb-1">
@@ -47,7 +47,7 @@
             
             <button 
               @click="activeTab = 'exercises'" 
-              class="flex-1 py-3 relative flex flex-col items-center text-xs font-medium whitespace-nowrap"
+              class="flex-1 py-4 relative flex flex-col items-center text-xs font-semibold whitespace-nowrap transition-colors"
               :class="activeTab === 'exercises' ? 'text-emerald-600' : 'text-gray-500'"
             >
               <div class="flex items-center justify-center mb-1">
@@ -55,7 +55,7 @@
               </div>
               <span>Ejercicios</span>
               <div class="absolute -bottom-px right-0 left-0 flex justify-center">
-                <span v-if="routineData.exercises.length" class="absolute -top-1.5 ml-4 bg-emerald-500 text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full">
+                <span v-if="routineData.exercises.length" class="absolute -top-1.5 ml-4 bg-emerald-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-bold">
                   {{ routineData.exercises.length }}
                 </span>
               </div>
@@ -68,217 +68,231 @@
         </div>
       </header>
       
-      <!-- Acciones rápidas flotantes -->
-      <div class="fixed bottom-20 right-4 flex flex-col gap-2 z-10">
-        <button class="p-3 bg-white text-gray-600 rounded-full shadow-lg hover:bg-gray-50 border border-gray-200">
+      <!-- Acciones rápidas flotantes - Rediseñadas para móvil -->
+      <div class="fixed bottom-24 right-4 flex flex-col gap-3 z-10">
+        <button class="p-3 bg-white text-gray-600 rounded-full shadow-lg hover:bg-gray-50 active:bg-gray-100 border border-gray-200 transform transition-transform active:scale-95">
           <Share2 class="w-5 h-5" />
         </button>
-        <button class="p-3 bg-white text-gray-600 rounded-full shadow-lg hover:bg-gray-50 border border-gray-200">
+        <button class="p-3 bg-white text-gray-600 rounded-full shadow-lg hover:bg-gray-50 active:bg-gray-100 border border-gray-200 transform transition-transform active:scale-95">
           <Printer class="w-5 h-5" />
         </button>
       </div>
       
-      <!-- Contenido principal con scroll -->
-      <main class="flex-1 overflow-y-auto px-4 pt-3 pb-16">
+      <!-- Contenido principal con scroll - Optimizado para móvil -->
+      <main class="flex-1 overflow-y-auto px-4 pt-4 pb-24 bg-gray-50">
         <!-- PESTAÑA: RESUMEN -->
         <div v-if="activeTab === 'summary'" class="space-y-5">
-          <!-- Estadísticas del entrenamiento -->
-          <div class="grid grid-cols-2 gap-3">
-            <div class="card p-3 flex items-center gap-3">
-              <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center">
-                <Clock class="w-5 h-5" />
+          <!-- Estadísticas del entrenamiento - Mejoradas para móvil -->
+          <div class="grid grid-cols-2 gap-4">
+            <div class="card p-4 flex items-center gap-3 shadow-sm transition-transform active:scale-98">
+              <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center">
+                <Clock class="w-6 h-6" />
               </div>
               <div>
-                <p class="text-xs text-gray-500">Duración</p>
-                <p class="text-lg font-bold text-gray-900">{{ routineData.duracion || 'N/A' }} min</p>
+                <p class="text-xs font-medium text-gray-500">Duración</p>
+                <p class="text-xl font-bold text-gray-900">{{ routineData.duracion || '00:00' }}</p>
               </div>
             </div>
             
-            <div class="card p-3 flex items-center gap-3">
-              <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center">
-                <Weight class="w-5 h-5" />
+            <div class="card p-4 flex items-center gap-3 shadow-sm transition-transform active:scale-98">
+              <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center">
+                <Activity class="w-6 h-6" />
               </div>
               <div>
-                <p class="text-xs text-gray-500">Volumen</p>
-                <p class="text-lg font-bold text-gray-900">{{ totalVolume }} kg</p>
+                <p class="text-xs font-medium text-gray-500">Volumen</p>
+                <p class="text-xl font-bold text-gray-900">{{ totalVolume }} kg</p>
               </div>
             </div>
             
-            <div class="card p-3 flex items-center gap-3">
-              <div class="w-10 h-10 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center">
-                <Activity class="w-5 h-5" />
+            <div class="card p-4 flex items-center gap-3 shadow-sm transition-transform active:scale-98">
+              <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center">
+                <Weight class="w-6 h-6" />
               </div>
               <div>
-                <p class="text-xs text-gray-500">Series</p>
-                <p class="text-lg font-bold text-gray-900">{{ totalSets }}</p>
+                <p class="text-xs font-medium text-gray-500">Series</p>
+                <p class="text-xl font-bold text-gray-900">{{ totalSets }}</p>
               </div>
             </div>
             
-            <div class="card p-3 flex items-center gap-3">
-              <div class="w-10 h-10 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center">
-                <Trophy class="w-5 h-5" />
+            <div class="card p-4 flex items-center gap-3 shadow-sm transition-transform active:scale-98">
+              <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center">
+                <Trophy class="w-6 h-6" />
               </div>
               <div>
-                <p class="text-xs text-gray-500">1RM Est.</p>
-                <p class="text-lg font-bold text-gray-900">{{ averageOneRM }} kg</p>
+                <p class="text-xs font-medium text-gray-500">1RM Est.</p>
+                <p class="text-xl font-bold text-gray-900">{{ averageOneRM }} kg</p>
               </div>
             </div>
           </div>
           
-          <!-- Notas del entrenamiento -->
-          <div v-if="routineData.comentario && routineData.comentario.trim() !== ''" class="card p-4 bg-amber-50/30 border border-amber-100">
+          <!-- Notas del entrenamiento - Mejoradas para móvil -->
+          <div v-if="routineData.comentario && routineData.comentario.trim() !== ''" class="card p-4 bg-amber-50 border border-amber-200 shadow-sm">
             <div class="flex items-start gap-3">
-              <div class="p-1.5 bg-amber-100 rounded-full">
-                <StickyNote class="w-4 h-4 text-amber-600" />
+              <div class="w-11 h-11 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center flex-shrink-0 border border-amber-200">
+                <StickyNote class="w-5 h-5" />
               </div>
               <div>
-                <h3 class="text-sm font-medium text-gray-900 mb-1">Notas del entrenamiento</h3>
-                <p class="text-sm text-gray-700">{{ routineData.comentario }}</p>
+                <h3 class="text-sm font-medium text-amber-800 mb-1.5">Notas del entrenamiento</h3>
+                <p class="text-sm text-gray-700 leading-relaxed">{{ routineData.comentario }}</p>
               </div>
             </div>
           </div>
           
-          <!-- Resumen de ejercicios -->
-          <div class="card overflow-hidden">
-            <div class="bg-gradient-to-r from-emerald-50 to-emerald-100 px-4 py-3 border-b border-emerald-200">
-              <h2 class="text-base font-medium text-emerald-800">Resumen de ejercicios</h2>
+          <!-- Resumen de ejercicios - Mejorado para móvil -->
+          <div class="card overflow-hidden shadow-sm">
+            <div class="bg-gradient-to-r from-emerald-50 to-emerald-100 px-4 py-3.5 border-b border-emerald-200">
+              <h2 class="text-base font-semibold text-emerald-800 flex items-center">
+                <Dumbbell class="w-5 h-5 mr-2 text-emerald-600" />
+                Resumen de ejercicios
+              </h2>
             </div>
             
             <div class="divide-y divide-gray-100">
               <div 
                 v-for="(ex, index) in routineData.exercises" 
                 :key="ex.ejercicio_id"
-                :class="[
-                  'p-3 flex justify-between items-center active:bg-gray-50',
-                  ex.isSuperset ? 'border-l-4 border-l-red-400' : ''
-                ]"
+                class="relative transition-all duration-150 active:bg-gray-100 rounded-lg overflow-hidden mb-1"
+                :class="ex.isSuperset ? 'border-l-4 border-l-red-400' : ''"
                 @click="activeTab = 'exercises'"
               >
-                <div class="flex items-center gap-3">
-                  <!-- Icono del ejercicio -->
-                  <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center relative">
-                    <Dumbbell class="w-5 h-5 text-gray-400" />
-                    <!-- Badge de superserie si corresponde -->
-                    <div v-if="ex.isSuperset" class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
-                      <span class="text-white text-[8px] font-bold">S</span>
+                <div class="p-4 flex justify-between items-center">
+                  <div class="flex items-center gap-3">
+                    <!-- Icono del ejercicio con diseño mejorado -->
+                    <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center relative shadow-sm">
+                      <Dumbbell class="w-6 h-6 text-gray-500" />
+                      <!-- Badge de superserie mejorado -->
+                      <div v-if="ex.isSuperset" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center shadow-sm border border-white">
+                        <span class="text-white text-[9px] font-bold">S</span>
+                      </div>
+                    </div>
+                    
+                    <!-- Información del ejercicio mejorada -->
+                    <div class="flex-1">
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <h3 class="font-semibold text-gray-900">{{ ex.name_es || ex.ejercicioNombre || ex.ejercicioInfo?.name_es || ex.ejercicioInfo?.name || ex.name || 'Ejercicio' }}</h3>
+                        <!-- Etiqueta de superserie mejorada -->
+                        <span v-if="ex.isSuperset" class="text-xs px-2 py-0.5 bg-red-50 text-red-600 rounded-full font-medium border border-red-100">
+                          Superserie
+                        </span>
+                      </div>
+                      <div class="flex items-center gap-1.5 mt-1">
+                        <span class="text-xs font-medium text-gray-500">{{ ex.series.length }} series</span>
+                        <span class="text-xs text-gray-400">•</span>
+                        <span class="text-xs font-medium text-gray-500">{{ ex.totalVolumen }} kg</span>
+                        <!-- Si tiene pairedExerciseName, mostrar con qué ejercicio forma superserie -->
+                        <span v-if="ex.pairedExerciseName" class="text-xs text-gray-400">•</span>
+                        <span v-if="ex.pairedExerciseName" class="text-xs font-medium text-gray-500">Con: {{ ex.pairedExerciseName }}</span>
+                      </div>
                     </div>
                   </div>
-                  
-                  <!-- Información del ejercicio -->
-                  <div class="flex-1">
-                    <div class="flex items-center gap-2">
-                      <h3 class="font-medium text-gray-900">{{ ex.name_es || ex.ejercicioNombre || ex.ejercicioInfo?.name_es || ex.ejercicioInfo?.name || ex.name || 'Ejercicio' }}</h3>
-                      <!-- Etiqueta de superserie si corresponde -->
-                      <span v-if="ex.isSuperset" class="text-xs px-1.5 py-0.5 bg-red-50 text-red-600 rounded font-medium">Superserie</span>
-                    </div>
-                    <div class="flex items-center gap-1 mt-0.5">
-                      <span class="text-xs text-gray-500">{{ ex.series.length }} series</span>
-                      <span class="text-xs text-gray-400">•</span>
-                      <span class="text-xs text-gray-500">{{ ex.totalVolumen }} kg</span>
-                      <!-- Si tiene pairedExerciseName, mostrar con qué ejercicio forma superserie -->
-                      <span v-if="ex.pairedExerciseName" class="text-xs text-gray-400">•</span>
-                      <span v-if="ex.pairedExerciseName" class="text-xs text-gray-500">Con: {{ ex.pairedExerciseName }}</span>
+                  <div class="text-right flex flex-col items-end">
+                    <div class="text-sm font-bold text-gray-900">{{ getMaxWeight(ex) }} kg</div>
+                    <div v-if="getWeightProgress(ex) !== 0" 
+                         class="text-xs px-2 py-0.5 rounded-full mt-1 flex items-center" 
+                         :class="getWeightProgress(ex) > 0 ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-red-50 text-red-600 border border-red-100'">
+                      {{ getWeightProgress(ex) > 0 ? '↑' : '↓' }} {{ Math.abs(getWeightProgress(ex)) }} kg
                     </div>
                   </div>
                 </div>
-                <div class="text-right">
-                  <div class="text-sm font-medium text-gray-900">{{ getMaxWeight(ex) }} kg</div>
-                  <div v-if="getWeightProgress(ex) !== 0" class="text-xs" :class="getWeightProgress(ex) > 0 ? 'text-emerald-600' : 'text-red-600'">
-                    {{ getWeightProgress(ex) > 0 ? '↑' : '↓' }} {{ Math.abs(getWeightProgress(ex)) }} kg
-                  </div>
-                </div>
+                <!-- Indicador de toque -->
+                <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-500 transform scale-x-0 transition-transform origin-left group-hover:scale-x-100"></div>
               </div>
             </div>
           </div>
         </div>
       
-        <!-- PESTAÑA: EJERCICIOS -->  
+        <!-- PESTAÑA: EJERCICIOS - Optimizada para móvil -->  
         <div v-if="activeTab === 'exercises'" class="space-y-4">
-          <!-- Acordeón de ejercicios -->  
-          <div class="space-y-3">
+          <!-- Acordeón de ejercicios mejorado -->  
+          <div class="space-y-4">
             <div 
               v-for="(ex, index) in routineData.exercises" 
               :key="ex.ejercicio_id" 
-              class="card overflow-hidden"
+              class="card overflow-hidden shadow-sm rounded-xl"
             >
-              <!-- Cabecera del ejercicio (siempre visible) -->  
+              <!-- Cabecera del ejercicio (siempre visible) - Mejorada para móvil -->  
               <div 
-                class="p-3 flex items-center justify-between bg-white border-b border-gray-100"
+                class="p-4 flex items-center justify-between bg-white"
                 :class="[ 
-                  { 'bg-emerald-50': selectedExercise === ex.ejercicio_id },
+                  { 'bg-emerald-50 border-b border-emerald-200': selectedExercise === ex.ejercicio_id },
                   ex.isSuperset ? 'border-l-4 border-l-red-400' : ''
                 ]"
                 @click="toggleExercise(ex.ejercicio_id)"
               >
                 <div class="flex items-center gap-3">
-                  <!-- Icono o número del ejercicio -->
+                  <!-- Icono o número del ejercicio - Mejorado para móvil -->
                   <div class="relative">
                     <div 
-                      class="w-10 h-10 rounded-lg flex items-center justify-center font-medium text-sm"
+                      class="w-12 h-12 rounded-lg flex items-center justify-center font-semibold text-base shadow-sm transition-colors"
                       :class="selectedExercise === ex.ejercicio_id ? 'bg-emerald-500 text-white' : 'bg-emerald-100 text-emerald-700'"
                     >
                       {{ index + 1 }}
                     </div>
-                    <!-- Badge de superserie -->
-                    <div v-if="ex.isSuperset" class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
-                      <span class="text-white text-[8px] font-bold">S</span>
+                    <!-- Badge de superserie - Mejorado para móvil -->
+                    <div v-if="ex.isSuperset" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center shadow-sm border border-white">
+                      <span class="text-white text-[9px] font-bold">S</span>
                     </div>
                   </div>
                   
-                  <!-- Información del ejercicio -->
+                  <!-- Información del ejercicio - Mejorada para móvil -->
                   <div>
-                    <div class="flex items-center gap-2">
-                      <h3 class="font-medium text-gray-900">{{ ex.name_es || ex.ejercicioNombre || ex.ejercicioInfo?.name_es || ex.ejercicioInfo?.name || ex.name || 'Ejercicio' }}</h3>
-                      <span v-if="ex.isSuperset" class="text-xs px-1.5 py-0.5 bg-red-50 text-red-600 rounded font-medium">Superserie</span>
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <h3 class="font-semibold text-gray-900">{{ ex.name_es || ex.ejercicioNombre || ex.ejercicioInfo?.name_es || ex.ejercicioInfo?.name || ex.name || 'Ejercicio' }}</h3>
+                      <span v-if="ex.isSuperset" class="text-xs px-2 py-0.5 bg-red-50 text-red-600 rounded-full font-medium border border-red-100">Superserie</span>
                     </div>
-                    <div class="flex items-center gap-1 mt-0.5">
-                      <span class="text-xs text-gray-500">{{ ex.series.length }} series</span>
+                    <div class="flex items-center gap-1.5 mt-1">
+                      <span class="text-xs font-medium text-gray-500">{{ ex.series.length }} series</span>
                       <span class="text-xs text-gray-400">•</span>
-                      <span class="text-xs text-gray-500">{{ ex.totalVolumen }} kg</span>
+                      <span class="text-xs font-medium text-gray-500">{{ ex.totalVolumen }} kg</span>
                       <!-- Información del paired exercise -->
                       <span v-if="ex.pairedExerciseName" class="text-xs text-gray-400">•</span>
-                      <span v-if="ex.pairedExerciseName" class="text-xs text-gray-500">Con: {{ ex.pairedExerciseName }}</span>
+                      <span v-if="ex.pairedExerciseName" class="text-xs font-medium text-gray-500">Con: {{ ex.pairedExerciseName }}</span>
                     </div>
                   </div>
                 </div>
                 
                 <div class="flex items-center gap-2">
                   <div class="text-right mr-1">
-                    <div class="text-sm font-medium text-gray-900">{{ getMaxWeight(ex) }} kg</div>
-                    <div v-if="getWeightProgress(ex) !== 0" class="text-xs" :class="getWeightProgress(ex) > 0 ? 'text-emerald-600' : 'text-red-600'">
+                    <div class="text-sm font-bold text-gray-900">{{ getMaxWeight(ex) }} kg</div>
+                    <div v-if="getWeightProgress(ex) !== 0" 
+                         class="text-xs px-2 py-0.5 rounded-full mt-1 flex items-center justify-center" 
+                         :class="getWeightProgress(ex) > 0 ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-red-50 text-red-600 border border-red-100'">
                       {{ getWeightProgress(ex) > 0 ? '↑' : '↓' }} {{ Math.abs(getWeightProgress(ex)) }}
                     </div>
                   </div>
                   <ChevronDown 
-                    class="w-5 h-5 text-gray-400 transition-transform duration-200" 
+                    class="w-6 h-6 text-gray-400 transition-transform duration-200" 
                     :class="{'transform rotate-180': selectedExercise === ex.ejercicio_id}"
                   />
                 </div>
               </div>
               
-              <!-- Contenido desplegable -->  
-              <div v-if="selectedExercise === ex.ejercicio_id" class="p-3 bg-gray-50 border-t border-gray-100">
-                <!-- Tabla de series -->  
-                <div class="bg-white rounded-lg border border-gray-200 overflow-hidden mb-4">
+              <!-- Contenido desplegable - Mejorado para móvil -->  
+              <div v-if="selectedExercise === ex.ejercicio_id" class="p-4 bg-gray-50 border-t border-gray-100">
+                <!-- Tabla de series - Mejorada para móvil -->  
+                <div class="bg-white rounded-lg border border-gray-200 overflow-hidden mb-4 shadow-sm">
+                  <div class="px-4 py-3 bg-emerald-50 border-b border-emerald-100">
+                    <h4 class="text-sm font-semibold text-emerald-800">Detalle de series</h4>
+                  </div>
                   <table class="w-full">
                     <thead class="bg-gray-50 border-b border-gray-200">
                       <tr>
-                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">Serie</th>
-                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">Peso</th>
-                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">Reps</th>
-                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">1RM</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-semibold text-gray-500">Serie</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-semibold text-gray-500">Peso</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-semibold text-gray-500">Reps</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-semibold text-gray-500">1RM</th>
                       </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
-                      <tr v-for="(set, sidx) in ex.series" :key="sidx" class="hover:bg-gray-50">
-                        <td class="px-3 py-2 text-sm font-medium text-gray-900">{{ sidx + 1 }}</td>
-                        <td class="px-3 py-2 text-sm text-gray-700">
-                          <span class="font-mono">{{ set.peso }}</span>
+                      <tr v-for="(set, sidx) in ex.series" :key="sidx" class="hover:bg-gray-50 active:bg-gray-100">
+                        <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ sidx + 1 }}</td>
+                        <td class="px-4 py-3 text-sm text-gray-700">
+                          <span class="font-mono font-medium">{{ set.peso }}</span>
                         </td>
-                        <td class="px-3 py-2 text-sm text-gray-700">
-                          <span class="font-mono">{{ set.repeticiones }}</span>
+                        <td class="px-4 py-3 text-sm text-gray-700">
+                          <span class="font-mono font-medium">{{ set.repeticiones }}</span>
                         </td>
-                        <td class="px-3 py-2 text-sm font-medium" :class="getOneRMColor(set)">
+                        <td class="px-4 py-3 text-sm font-medium" :class="getOneRMColor(set)">
                           <span class="font-mono">{{ calculateOneRM(set.peso, set.repeticiones) }}</span>
                         </td>
                       </tr>
@@ -286,19 +300,24 @@
                   </table>
                 </div>
                 
-                <!-- Gráfico de progreso (con avg, min, max, 1RM) -->
-                <div v-if="hasHistoricalData(ex)" class="mt-3">
-                  <div class="flex items-center justify-between mb-2">
-                    <h4 class="text-xs font-medium text-gray-700">Progreso de Peso</h4>
-                    <span class="text-xs text-gray-500">{{ getHistoricalLogs(ex).length }} registros</span>
+                <!-- Gráfico de progreso (con avg, min, max, 1RM) - Mejorado para móvil -->
+                <div v-if="hasHistoricalData(ex)" class="mt-4">
+                  <div class="px-4 py-3 bg-blue-50 border border-blue-100 rounded-lg shadow-sm mb-3">
+                    <div class="flex items-center justify-between">
+                      <h4 class="text-sm font-semibold text-blue-800 flex items-center">
+                        <Activity class="w-4 h-4 mr-1.5 text-blue-600" />
+                        Progreso de Peso
+                      </h4>
+                      <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">{{ getHistoricalLogs(ex).length }} registros</span>
+                    </div>
                   </div>
-                  <div class="bg-white rounded-lg border border-gray-200 p-2">
+                  <div class="bg-white rounded-lg border border-gray-200 p-3 shadow-sm">
                     <!-- Gráfica: pasamos logs con (avg, min, max, 1RM) -->
                     <ExerciseProgressChart
-  :logs="getHistoricalLogs(ex)"
-  :exerciseName="ex.name_es || 'Ejercicio'"
-  @mounted="console.log('Nombre enviado a gráfica:', ex.ejercicioNombre, ex.ejercicioInfo?.name_es, ex.ejercicioInfo?.name, ex.name_es, ex.name)"
-/>
+                      :logs="getHistoricalLogs(ex)"
+                      :exerciseName="ex.name_es || 'Ejercicio'"
+                      @mounted="console.log('Nombre enviado a gráfica:', ex.ejercicioNombre, ex.ejercicioInfo?.name_es, ex.ejercicioInfo?.name, ex.name_es, ex.name)"
+                    />
                   </div>
                 </div>
               </div>
@@ -307,11 +326,11 @@
         </div>
       </main>
       
-      <!-- Botón flotante de acción principal -->  
-      <div class="fixed bottom-4 right-4 left-4 z-30 flex justify-center">
+      <!-- Botón flotante de acción principal - Mejorado para móvil -->  
+      <div class="fixed bottom-6 right-4 left-4 z-30 flex justify-center">
         <router-link 
           :to="{ name: 'training' }" 
-          class="bg-emerald-600 text-white py-3 px-6 rounded-full font-medium text-sm shadow-lg flex items-center justify-center gap-2 w-full max-w-xs"
+          class="bg-emerald-600 text-white py-3.5 px-6 rounded-full font-medium text-sm shadow-lg flex items-center justify-center gap-2 w-full max-w-xs transform transition-transform active:scale-98 hover:bg-emerald-700"
         >
           <Plus class="w-5 h-5" />
           Nuevo entrenamiento
@@ -327,6 +346,7 @@ import { ref, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useWorkoutLogsStore } from '@/stores/workoutLogs';
 import { useTrainingStore } from '@/stores/training';
+import { useExerciseLibraryStore } from '@/stores/exerciseLibrary';
 
 // Import de iconos
 import { 
@@ -372,6 +392,7 @@ const Dumbbell = {
 const route = useRoute();
 const workoutLogsStore = useWorkoutLogsStore();
 const trainingStore = useTrainingStore();
+const exerciseLibraryStore = useExerciseLibraryStore();
 const routineData = ref<any>(null);
 const previousWorkouts = ref<any[]>([]);
 const activeTab = ref('summary');
@@ -528,6 +549,7 @@ function getHistoricalLogs(exercise: any) {
 
 // onMounted
 onMounted(async () => {
+  exerciseLibraryStore.fetchExerciseLibrary();
   if (!workoutLogsStore.workouts.length) {
     await workoutLogsStore.getWorkouts();
   }
@@ -575,49 +597,37 @@ onMounted(async () => {
     });
   }
 
-  // Construir ejercicios con info
+  // Mapear ejercicios con nombres desde exerciseLibraryStore
+  const exerciseDict: Record<string, string> = {};
+  if (Array.isArray(exerciseLibraryStore.exercises)) {
+    exerciseLibraryStore.exercises.forEach(e => {
+      if (e.uuid) exerciseDict[e.uuid] = e.name_es || e.name_en || 'Ejercicio';
+      if (e.id && e.id !== e.uuid) exerciseDict[e.id] = e.name_es || e.name_en || 'Ejercicio';
+    });
+  }
+
   const ejercicios = (workout.ejercicios || []).map(ex => {
-    let ejercicioInfo = null;
-    // Si no hay name_es, buscar el ejercicio en la rutina por id y usar name_es de la BBDD
-    let ejercicioNombre = ex.name_es;
-    if (!ejercicioNombre && rutina && rutina.ejercicios) {
-      const match = rutina.ejercicios.find(eji => String(eji.id) === String(ex.ejercicio_id));
-      if (match && match.name_es) {
-        ejercicioNombre = match.name_es;
-      }
+    let nombre = 'Ejercicio';
+
+    // 1) buscar dentro de la rutina si existe
+    if (rutina?.ejercicios?.length) {
+      const ej = rutina.ejercicios.find((e) => e.id === ex.ejercicio_id);
+      if (ej) nombre = ej.name_es || ej.name || nombre;
     }
-    if (!ejercicioNombre) ejercicioNombre = 'Ejercicio'; 
-    let isSuperset = false;
-    let pairedExerciseName = null;
 
-    if (rutina && rutina.ejercicios) {
-      // Buscamos un match
-      ejercicioInfo = rutina.ejercicios.find(eji => String(eji.id) === String(ex.ejercicio_id));
-      // Depuración: mostrar ids y nombres
-      console.log('[DEBUG] Buscando ejercicioInfo para:', ex.ejercicio_id, 'en', rutina.ejercicios.map(e => e.id));
-      if (ejercicioInfo) {
-        // Si el match existe, sobreescribe el nombre por el de la rutina (preferencia name_es)
-        ejercicioNombre = ejercicioInfo.name_es 
-          ?? ejercicioNombre; 
+    // 2) fallback a exerciseLibrary usando ejercicio_id
+    if (nombre === 'Ejercicio' && ex.ejercicio_id && exerciseDict[ex.ejercicio_id]) {
+      nombre = exerciseDict[ex.ejercicio_id];
+    }
 
-        console.log('[DEBUG] ejercicioInfo encontrado:', ejercicioInfo);
+    // 3) fallback adicional si hay un campo exercise_id
+    if (nombre === 'Ejercicio' && ex.exercise_id && exerciseDict[ex.exercise_id]) {
+      nombre = exerciseDict[ex.exercise_id];
+    }
 
-        if (ejercicioInfo.advanced_mode === 'superset' && ejercicioInfo.superset_group_id) {
-          isSuperset = true;
-          const groupExercises = supersetGroups[ejercicioInfo.superset_group_id] || [];
-          const pairedId = groupExercises.find(id => String(id) !== String(ex.ejercicio_id));
-          if (pairedId) {
-            const pairedInfo = rutina.ejercicios.find(ejj => String(ejj.id) === pairedId);
-            if (pairedInfo) {
-              pairedExerciseName = pairedInfo.name_es 
-                ?? pairedInfo.name 
-                ?? 'Ejercicio';
-            }
-          }
-        }
-      } else {
-        console.warn('[DEBUG] No se encontró un ejercicioInfo para ejercicio_id:', ex.ejercicio_id, 'Nombre log:', ex.name_es || ex.name);
-      }
+    // 4) fallback adicional: buscar en los sets si hay un ejercicio_id
+    if (nombre === 'Ejercicio' && ex.sets && ex.sets.length > 0 && ex.sets[0].ejercicio_id && exerciseDict[ex.sets[0].ejercicio_id]) {
+      nombre = exerciseDict[ex.sets[0].ejercicio_id];
     }
 
     const series = (ex.sets || []).map((s: any) => ({
@@ -630,13 +640,12 @@ onMounted(async () => {
     
     return {
       ...ex,
-      ejercicioInfo,
-      ejercicioNombre,
+      ejercicioNombre: nombre,
       series,
       totalVolumen: series.reduce((acc: number, ss: any) => acc + ss.volumen, 0),
       pesoMaximo: Math.max(...series.map((ss: any) => ss.peso), 0),
-      isSuperset,
-      pairedExerciseName
+      isSuperset: supersetGroups[ex.ejercicio_id] ? true : false,
+      pairedExerciseName: supersetGroups[ex.ejercicio_id] ? rutina.ejercicios.find(ej => ej.id !== ex.ejercicio_id && ej.superset_group_id === ex.superset_group_id)?.name_es : null
     };
   });
 

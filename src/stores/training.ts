@@ -38,7 +38,8 @@ export const useTrainingStore = defineStore('training', () => {
             )
           )
         `)
-        .order('order');
+        .order('order') // ordenar mesociclos
+        .order('order', { foreignTable: 'rutinas' }); // ordenar rutinas dentro de cada mesociclo
 
       if (err) throw err;
 
@@ -379,6 +380,36 @@ export const useTrainingStore = defineStore('training', () => {
     }
   }
 
+  async function clearAllMesociclos() {
+    try {
+      isLoading.value = true;
+      error.value = null;
+      const { error: err } = await supabase.from('mesociclos').delete();
+      if (err) throw err;
+      await fetchMesociclos();
+    } catch (err) {
+      console.error('Error clearing mesociclos:', err);
+      toast.error('Error al borrar mesociclos');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  async function clearAllRutinas() {
+    try {
+      isLoading.value = true;
+      error.value = null;
+      const { error: err } = await supabase.from('rutinas').delete();
+      if (err) throw err;
+      await fetchMesociclos();
+    } catch (err) {
+      console.error('Error clearing rutinas:', err);
+      toast.error('Error al borrar rutinas');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   return {
     mesociclos,
     isLoading,
@@ -391,7 +422,9 @@ export const useTrainingStore = defineStore('training', () => {
     deleteMesociclo,
     createRutina,
     updateRutina,
-    deleteRutina
+    deleteRutina,
+    clearAllMesociclos,
+    clearAllRutinas
   };
 }, {
   persist: false

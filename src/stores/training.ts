@@ -38,6 +38,7 @@ export const useTrainingStore = defineStore('training', () => {
             )
           )
         `)
+        .order('order', { foreignTable: 'rutinas' })
         .order('order');
 
       if (err) throw err;

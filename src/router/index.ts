@@ -8,6 +8,7 @@ import ConfigView from '@/views/ConfigView.vue';
 import TrainingView from '@/views/TrainingView.vue';
 import ExerciseLibraryView from '@/views/ExerciseLibraryView.vue';
 import HistoryView from '@/views/HistoryView.vue';
+import LandingView from '@/views/LandingView.vue';
 
 // NUEVA RUTA LAZY para ActiveWorkoutView:
 const ActiveWorkoutView = () => import('@/views/ActiveWorkoutView.vue');
@@ -23,13 +24,15 @@ const router = createRouter({
     },
     {
       path: '/',
+      name: 'landing',
+      component: LandingView,
+      meta: { requiresAuth: false }
+    },
+    {
+      path: '/',
       component: AppLayout,
       meta: { requiresAuth: true },
       children: [
-        {
-          path: '',
-          redirect: '/dashboard'
-        },
         {
           path: 'dashboard',
           name: 'dashboard',
@@ -100,6 +103,8 @@ router.beforeEach(async (to, from, next) => {
   if (requiresAuth && !session) {
     next('/login');
   } else if (to.path === '/login' && session) {
+    next('/dashboard');
+  } else if (to.path === '/' && session) {
     next('/dashboard');
   } else {
     next();

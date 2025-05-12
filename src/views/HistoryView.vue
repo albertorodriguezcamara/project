@@ -1,65 +1,73 @@
 <template>
   <div class="max-w-5xl mx-auto py-8 px-4 space-y-8">
-    <!-- Encabezado y estadísticas -->
+    <!-- Encabezado y estadísticas - Estilo Atlético Americano -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900">Historial de Entrenamientos</h1>
-        <p class="text-gray-500 mt-1">Revisa tus entrenamientos completados</p>
+        <h1 class="text-3xl font-extrabold uppercase tracking-tight text-white drop-shadow-md" style="color: #0b2545;">HISTORIAL DE ENTRENAMIENTOS</h1>
+        <p class="mt-1 text-sm font-bold" style="color: #a52a2a;">REVISA TUS ENTRENAMIENTOS COMPLETADOS</p>
       </div>
       
       <div class="flex flex-wrap gap-3">
-        <div class="bg-white rounded-lg shadow-sm border border-gray-100 px-4 py-2 flex items-center gap-2">
-          <div class="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center">
-            <CalendarIcon class="w-4 h-4 text-emerald-600" />
+        <div class="rounded-lg shadow-md px-4 py-3 flex items-center gap-3" style="background-color: #0b2545; border: 2px solid #ffd700;">
+          <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background-color: #ffd700;">
+            <CalendarIcon class="w-5 h-5" style="color: #0b2545;" />
           </div>
           <div>
-            <div class="text-xs text-gray-500">Total</div>
-            <div class="font-medium">{{ workouts.length }} entrenamientos</div>
+            <div class="text-xs font-bold uppercase tracking-wide" style="color: #ffd700;">TOTAL</div>
+            <div class="font-extrabold text-white text-lg">{{ workouts.length }}</div>
           </div>
         </div>
         
-        <div class="bg-white rounded-lg shadow-sm border border-gray-100 px-4 py-2 flex items-center gap-2">
-          <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-            <TrendingUpIcon class="w-4 h-4 text-purple-600" />
+        <div class="rounded-lg shadow-md px-4 py-3 flex items-center gap-3" style="background-color: #0b2545; border: 2px solid #ffd700;">
+          <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background-color: #ffd700;">
+            <TrendingUpIcon class="w-5 h-5" style="color: #0b2545;" />
           </div>
           <div>
-            <div class="text-xs text-gray-500">Este mes</div>
-            <div class="font-medium">{{ workoutsThisMonth }} entrenamientos</div>
+            <div class="text-xs font-bold uppercase tracking-wide" style="color: #ffd700;">ESTE MES</div>
+            <div class="font-extrabold text-white text-lg">{{ workoutsThisMonth }}</div>
           </div>
         </div>
       </div>
     </div>
     
-    <!-- Pestañas de navegación -->
-    <div class="border-b border-gray-200">
-      <nav class="flex space-x-8" aria-label="Tabs">
+    <!-- Pestañas de navegación - Estilo Atlético Americano -->
+    <div class="border-b-4" style="border-color: #ffd700;">
+      <nav class="flex space-x-2" aria-label="Tabs">
         <button 
           @click="activeTab = 'list'" 
           :class="[
-            'py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap',
+            'py-3 px-6 font-bold text-sm uppercase tracking-wide whitespace-nowrap rounded-t-lg transform -skew-x-6',
             activeTab === 'list' 
-              ? 'border-emerald-500 text-emerald-600' 
-              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              ? 'text-white border-b-4 border-red-700' 
+              : 'text-white hover:text-yellow-200'
           ]"
+          :style="{
+            backgroundColor: activeTab === 'list' ? '#0b2545' : 'rgba(11, 37, 69, 0.7)',
+            boxShadow: activeTab === 'list' ? '0 4px 6px -1px rgba(0, 0, 0, 0.1)' : 'none'
+          }"
         >
-          <div class="flex items-center gap-2">
-            <ListIcon class="w-4 h-4" />
-            Lista de Entrenamientos
+          <div class="flex items-center gap-2 transform skew-x-6">
+            <ListIcon class="w-5 h-5" :style="{ color: activeTab === 'list' ? '#ffd700' : 'white' }" />
+            LISTA
           </div>
         </button>
         
         <button 
           @click="activeTab = 'progress'" 
           :class="[
-            'py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap',
+            'py-3 px-6 font-bold text-sm uppercase tracking-wide whitespace-nowrap rounded-t-lg transform -skew-x-6',
             activeTab === 'progress' 
-              ? 'border-emerald-500 text-emerald-600' 
-              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              ? 'text-white border-b-4 border-red-700' 
+              : 'text-white hover:text-yellow-200'
           ]"
+          :style="{
+            backgroundColor: activeTab === 'progress' ? '#0b2545' : 'rgba(11, 37, 69, 0.7)',
+            boxShadow: activeTab === 'progress' ? '0 4px 6px -1px rgba(0, 0, 0, 0.1)' : 'none'
+          }"
         >
-          <div class="flex items-center gap-2">
-            <BarChartIcon class="w-4 h-4" />
-            Gráficas de Progreso
+          <div class="flex items-center gap-2 transform skew-x-6">
+            <BarChartIcon class="w-5 h-5" :style="{ color: activeTab === 'progress' ? '#ffd700' : 'white' }" />
+            PROGRESO
           </div>
         </button>
       </nav>
@@ -67,39 +75,45 @@
     
     <!-- Contenido según la pestaña seleccionada -->
     <div v-if="activeTab === 'list'">
-      <!-- Filtros -->
-      <div class="card">
-        <h2 class="text-lg font-medium text-gray-900 mb-4">Filtros</h2>
+      <!-- Filtros - Estilo Atlético Americano -->
+      <div class="rounded-lg shadow-lg p-5" style="background-color: #0b2545; border: 3px solid #ffd700;">
+        <h2 class="text-xl font-extrabold uppercase tracking-wide mb-4 text-white flex items-center">
+          <span class="mr-2 inline-block w-6 h-6 rounded-full" style="background-color: #ffd700;"></span>
+          FILTROS
+        </h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-              Fecha Inicio
+            <label class="block text-sm font-bold uppercase tracking-wide text-white mb-2">
+              FECHA INICIO
             </label>
             <input
               type="date"
               v-model="filters.startDate"
-              class="input-field"
+              class="w-full px-3 py-2 border-2 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors"
+              style="border-color: #ffd700; background-color: white; color: #0b2545; font-weight: 600;"
             />
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-              Fecha Fin
+            <label class="block text-sm font-bold uppercase tracking-wide text-white mb-2">
+              FECHA FIN
             </label>
             <input
               type="date"
               v-model="filters.endDate"
-              class="input-field"
+              class="w-full px-3 py-2 border-2 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors"
+              style="border-color: #ffd700; background-color: white; color: #0b2545; font-weight: 600;"
             />
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-              Mesociclo
+            <label class="block text-sm font-bold uppercase tracking-wide text-white mb-2">
+              MESOCICLO
             </label>
             <select
               v-model="filters.mesocicloId"
-              class="input-field"
+              class="w-full px-3 py-2 border-2 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors"
+              style="border-color: #ffd700; background-color: white; color: #0b2545; font-weight: 600;"
             >
               <option value="">Todos los mesociclos</option>
               <option
@@ -113,12 +127,13 @@
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-              Ejercicio
+            <label class="block text-sm font-bold uppercase tracking-wide text-white mb-2">
+              EJERCICIO
             </label>
             <select
               v-model="filters.ejercicioId"
-              class="input-field"
+              class="w-full px-3 py-2 border-2 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors"
+              style="border-color: #ffd700; background-color: white; color: #0b2545; font-weight: 600;"
             >
               <option value="">Todos los ejercicios</option>
               <option
@@ -133,52 +148,57 @@
         </div>
       </div>
 
-      <!-- Estado de carga -->
-      <div v-if="isLoading" class="flex justify-center py-12">
-        <div class="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+      <!-- Estado de carga - Estilo Atlético Americano -->
+      <div v-if="isLoading" class="flex justify-center py-12 mt-8">
+        <div class="w-16 h-16 border-4 border-t-transparent rounded-full animate-spin" style="border-color: #ffd700 transparent #a52a2a transparent;"></div>
       </div>
 
-      <!-- Lista de entrenamientos -->
-      <div v-else class="space-y-4">
+      <!-- Lista de entrenamientos - Estilo Atlético Americano -->
+      <div v-else class="space-y-6 mt-8">
         <div
           v-for="workout in filteredWorkouts"
           :key="workout.id"
-          class="card hover:border-emerald-200 cursor-pointer transition-all"
+          class="rounded-lg shadow-lg p-4 cursor-pointer transition-all transform hover:scale-[1.01] hover:shadow-xl relative overflow-hidden"
+          style="background-color: white; border: 2px solid #0b2545;"
           @click="navigateToWorkoutDetails(workout.id)"
         >
-          <div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
+          <!-- Franja decorativa diagonal -->
+          <div class="absolute top-0 right-0 w-24 h-24 transform rotate-45 translate-x-8 -translate-y-10" style="background-color: #ffd700;"></div>
+          <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 relative z-10">
             <div class="min-w-0 flex-1">
               <div class="flex flex-wrap items-center gap-2">
-                <h3 class="font-medium text-gray-900 truncate">{{ getRutinaName(workout.rutina_id) }}</h3>
+                <h3 class="text-lg font-extrabold text-gray-900 truncate uppercase" style="color: #0b2545;">{{ getRutinaName(workout.rutina_id) }}</h3>
                 <span 
-                  class="shrink-0 bg-emerald-100 text-emerald-600 text-xs px-2 py-0.5 rounded-full font-medium"
+                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wide"
+                  style="background-color: #a52a2a; color: white;"
                 >
-                  Completado
+                  COMPLETADO
                 </span>
               </div>
-              <p class="text-sm text-gray-500 mt-1">
+              <p class="text-sm font-bold mt-1" style="color: #0b2545;">
                 {{ formatDate(workout.fecha) }}
               </p>
             </div>
             
-            <div class="flex flex-wrap gap-3">
-              <div class="bg-gray-50 px-3 py-1 rounded-lg text-sm text-gray-700 flex items-center gap-1">
-                <ClockIcon class="w-4 h-4 text-gray-500" />
+            <div class="flex flex-wrap gap-3 relative z-10">
+              <div class="px-3 py-1 rounded-lg text-sm font-bold flex items-center gap-1" style="background-color: #0b2545; color: white;">
+                <ClockIcon class="w-4 h-4" style="color: #ffd700;" />
                 {{ workout.duracion || 'N/A' }} min
               </div>
               
-              <div class="bg-gray-50 px-3 py-1 rounded-lg text-sm text-gray-700 flex items-center gap-1">
-                <DumbbellIcon class="w-4 h-4 text-gray-500" />
+              <div class="px-3 py-1 rounded-lg text-sm font-bold flex items-center gap-1" style="background-color: #0b2545; color: white;">
+                <DumbbellIcon class="w-4 h-4" style="color: #ffd700;" />
                 {{ workout.ejercicios?.length || 0 }} ejercicios
               </div>
               
               <router-link 
                 :to="{ name: 'completed-routine', params: { id: workout.id } }" 
-                class="bg-emerald-50 px-3 py-1 rounded-lg text-sm text-emerald-700 flex items-center gap-1 hover:bg-emerald-100"
+                class="text-xs px-3 py-1.5 flex items-center gap-1 rounded font-bold uppercase tracking-wide transform -skew-x-6 transition-all"
+                style="background-color: #a52a2a; color: white; border: 2px solid #ffd700;"
                 @click.stop
               >
-                <EyeIcon class="w-4 h-4" />
-                Ver detalles
+                <EyeIcon class="w-4 h-4 transform skew-x-6" />
+                <span class="transform skew-x-6">DETALLES</span>
               </router-link>
             </div>
           </div>

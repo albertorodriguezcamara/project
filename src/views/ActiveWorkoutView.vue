@@ -120,17 +120,13 @@
                 </div>
                 <!-- Exercise Info -->
                 <div class="flex-1">
-                  <div class="flex items-center justify-between">
-                    <h3 class="text-lg font-bold text-gray-900">
-                      {{ ejercicio.exercise?.name_es || ejercicio.name_es }}
-                    </h3>
-                    <div class="flex items-center gap-2">
-                      <span v-if="ejercicio.isCompleted" class="bg-emerald-100 text-emerald-800 px-2 py-1 rounded font-semibold">Completado</span>
-                      <span v-if="ejercicio.isSuperset" class="bg-red-50 text-red-800 px-2 py-1 rounded font-semibold">Superserie</span>
-                    </div>
+                  <h3 class="text-lg font-bold text-gray-900 mb-2">
+                    {{ ejercicio.exercise?.name_es || ejercicio.name_es }}
+                  </h3>
+                  <div class="flex flex-wrap items-center gap-2 mb-2">
+                    <span v-if="ejercicio.isCompleted" class="bg-emerald-100 text-emerald-800 px-2 py-1 rounded font-semibold">Completado</span>
                     <span v-if="ejercicio.exercise?.bodyPart_es" class="bg-blue-50 text-blue-800 px-2 py-1 rounded">{{ ejercicio.exercise.bodyPart_es }}</span>
                     <span v-if="ejercicio.exercise?.equipment_es" class="bg-purple-50 text-purple-800 px-2 py-1 rounded">{{ ejercicio.exercise.equipment_es }}</span>
-                    <span v-if="ejercicio.isSuperset" class="bg-red-50 text-red-800 px-2 py-1 rounded font-semibold">Superserie</span>
                   </div>
                   <p class="text-sm text-gray-500 mb-1">
                     {{ ejercicio.sets.length }} series

@@ -146,11 +146,13 @@
           class="card hover:border-emerald-200 cursor-pointer transition-all"
           @click="navigateToWorkoutDetails(workout.id)"
         >
-          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <div class="flex items-center gap-2">
-                <h3 class="font-medium text-gray-900">{{ getRutinaName(workout.rutina_id) }}</h3>
-                <span class="bg-emerald-100 text-emerald-800 text-xs px-2 py-0.5 rounded-full">
+          <div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
+            <div class="min-w-0 flex-1">
+              <div class="flex flex-wrap items-center gap-2">
+                <h3 class="font-medium text-gray-900 truncate">{{ getRutinaName(workout.rutina_id) }}</h3>
+                <span 
+                  class="shrink-0 bg-emerald-100 text-emerald-600 text-xs px-2 py-0.5 rounded-full font-medium"
+                >
                   Completado
                 </span>
               </div>

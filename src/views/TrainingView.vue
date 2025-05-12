@@ -86,81 +86,89 @@
         <div
           v-for="rutina in activeMesociclo.rutinas"
           :key="rutina.id"
-          class="card p-5 hover:scale-[1.02] transition-all cursor-pointer shadow-md rounded-2xl"
+          class="group relative overflow-hidden bg-white hover:bg-gradient-to-br hover:from-blue-50 hover:to-blue-100/50 p-5 hover:scale-[1.02] transition-all cursor-pointer shadow-lg hover:shadow-xl rounded-2xl border border-gray-100"
           @click="openRoutine(rutina)"
         >
-          <div class="flex items-start justify-between mb-5">
-            <div>
-              <h3 class="text-xl font-bold text-gray-800">{{ rutina.name }}</h3>
-              <div class="flex items-center gap-2 mt-1">
-                <p class="text-base text-gray-600">
-                  {{ (rutina.routine_exercises?.length || 0) }} ejercicios
-                </p>
-                <!-- Etiqueta de veces completadas -->
-                <div v-if="getCompletionCount(rutina.id) > 0" 
-                     class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-medium rounded-full flex items-center">
-                  <CheckCircle class="w-3 h-3 mr-1" />
-                  {{ getCompletionCount(rutina.id) }} {{ getCompletionCount(rutina.id) === 1 ? 'vez' : 'veces' }}
-                </div>
+          <!-- Decorative elements -->
+          <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/5 to-blue-500/10 rounded-full transform translate-x-16 -translate-y-16"></div>
+          <div class="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-emerald-500/5 to-emerald-500/10 rounded-full transform -translate-x-16 translate-y-16"></div>
+
+          <!-- Header -->
+          <div class="relative flex items-start justify-between mb-6">
+            <div class="flex-1">
+              <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-blue-700 transition-colors">{{ rutina.name }}</h3>
+              <div class="flex items-center gap-2">
+                <span
+                  v-if="getCompletionCount(rutina.id) > 0"
+                  class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-100 text-emerald-700 rounded-full text-sm font-medium"
+                >
+                  <Trophy class="w-4 h-4" />
+                  {{ getCompletionCount(rutina.id) }}x completado
+                </span>
               </div>
             </div>
-            <div 
-              class="w-12 h-12 rounded-xl flex items-center justify-center shadow-sm"
-              :class="isRoutineCompleted(rutina.id) 
-                ? 'bg-emerald-100 text-emerald-600' 
-                : 'bg-blue-100 text-blue-600'"
+            <div
+              class="flex items-center justify-center w-12 h-12 rounded-xl transition-all duration-300 shadow-sm"
+              :class="isRoutineCompleted(rutina.id) ? 'bg-emerald-100 text-emerald-600 group-hover:bg-emerald-200' : 'bg-blue-100 text-blue-600 group-hover:bg-blue-200'"
             >
               <CheckCircle v-if="isRoutineCompleted(rutina.id)" class="w-6 h-6" />
               <Play v-else class="w-6 h-6" />
             </div>
           </div>
 
-          <!-- Exercise Preview -->
-          <div class="mt-3 bg-gray-50 rounded-xl p-4">
+          <!-- Exercise Preview with modern design -->
+          <div class="relative mt-3 bg-gray-50/80 backdrop-blur-sm rounded-xl p-4 group-hover:bg-white/80 transition-colors border border-gray-100">
             <div class="flex items-center justify-between mb-3">
-              <h5 class="text-sm font-medium text-gray-600">EJERCICIOS</h5>
+              <h5 class="text-sm font-semibold text-gray-700 tracking-wide">EJERCICIOS</h5>
             </div>
-            <ul class="space-y-3">
+            <ul class="space-y-2.5">
               <li 
                 v-for="(ejercicio, index) in rutina.routine_exercises?.slice(0, 3)"
                 :key="ejercicio.id"
-                class="text-base text-gray-700"
+                class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100/80 transition-colors"
               >
-                <div class="flex items-center">
-                  <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-sm mr-2">
-                    {{ index + 1 }}
-                  </span>
-                  <span class="font-medium">{{ ejercicio.exercise?.name_es || 'Ejercicio' }}</span>
+                <div class="w-6 h-6 flex items-center justify-center rounded-md bg-blue-100 text-blue-600 text-sm font-medium">
+                  {{ index + 1 }}
                 </div>
-                <div class="ml-8 text-sm text-gray-500 mt-1">
-                  <template v-if="ejercicio.advanced_mode !== 'dropset'">
-                    <span>{{ ejercicio.sets }}×{{ ejercicio.reps }}</span>
-                  </template>
-                  <template v-else>
-                    <template v-for="(s,i) in (ejercicio.set_data ? JSON.parse(ejercicio.set_data) : ejercicio.sets)" :key="i">
-                      {{ s.weight }}kg×{{ s.reps }}
-                      <span v-if="i < (ejercicio.set_data ? JSON.parse(ejercicio.set_data).length - 1 : ejercicio.sets - 1)" class="mx-1">•</span>
-                    </template>
-                  </template>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between gap-2">
+                    <span class="text-sm font-medium text-gray-700 truncate">{{ ejercicio.exercise?.name_es || 'Ejercicio' }}</span>
+                    <div class="flex items-center gap-1.5" v-if="ejercicio.set_data || ejercicio.sets">
+                      <template
+                        v-for="i in (ejercicio.set_data ? JSON.parse(ejercicio.set_data).length : ejercicio.sets)"
+                        :key="i"
+                      >
+                        <span class="w-1.5 h-1.5 rounded-full bg-blue-400/60"></span>
+                      </template>
+                    </div>
+                  </div>
                 </div>
               </li>
-              <li v-if="(rutina.routine_exercises?.length || 0) > 3" class="text-sm text-center text-gray-500 italic pt-1">
+              <li v-if="(rutina.routine_exercises?.length || 0) > 3" 
+                class="mt-2 py-2 text-sm text-center text-blue-600 font-medium hover:text-blue-700 transition-colors border-t border-gray-100"
+              >
                 + {{ rutina.routine_exercises!.length - 3 }} ejercicios más
               </li>
             </ul>
           </div>
 
-          <!-- Stats -->
-          <div class="mt-5 pt-5 border-t border-gray-100 grid grid-cols-2 gap-6">
-            <div class="text-center p-3 bg-gray-50 rounded-xl">
-              <p class="text-base text-gray-600">Series totales</p>
-              <p class="text-2xl font-bold text-gray-800">
-                {{ rutina.routine_exercises?.reduce((acc, ej) => acc + ej.sets, 0) || 0 }}
-              </p>
+          <!-- Stats with modern design -->
+          <div class="mt-5 pt-5 border-t border-gray-100 grid grid-cols-2 gap-4">
+            <div class="relative overflow-hidden p-4 bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-xl border border-blue-100/50 group-hover:border-blue-200 transition-colors">
+              <div class="relative z-10">
+                <p class="text-sm font-medium text-blue-600 mb-1">Series totales</p>
+                <p class="text-2xl font-bold text-gray-800">
+                  {{ rutina.routine_exercises?.reduce((acc, ej) => acc + ej.sets, 0) || 0 }}
+                </p>
+              </div>
+              <div class="absolute top-0 right-0 w-16 h-16 bg-blue-200/20 rounded-full transform translate-x-8 -translate-y-8"></div>
             </div>
-            <div class="text-center p-3 bg-gray-50 rounded-xl">
-              <p class="text-base text-gray-600">Duración est.</p>
-              <p class="text-2xl font-bold text-gray-800">45-60m</p>
+            <div class="relative overflow-hidden p-4 bg-gradient-to-br from-emerald-50 to-emerald-100/50 rounded-xl border border-emerald-100/50 group-hover:border-emerald-200 transition-colors">
+              <div class="relative z-10">
+                <p class="text-sm font-medium text-emerald-600 mb-1">Duración est.</p>
+                <p class="text-2xl font-bold text-gray-800">45-60m</p>
+              </div>
+              <div class="absolute top-0 right-0 w-16 h-16 bg-emerald-200/20 rounded-full transform translate-x-8 -translate-y-8"></div>
             </div>
           </div>
         </div>
